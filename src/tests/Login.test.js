@@ -1,13 +1,13 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import App from '../App';
+import Login from '../pages/Login';
+import renderWithRouterAndRedux from './helpers/renderWithRouterAndRedux';
 
 describe('Testa a tela de login', () => {
     it('Testa o input de nome', () => {
-        render(<BrowserRouter><App /></BrowserRouter>);
+        renderWithRouterAndRedux(<Login />);
         const nameInput = screen.getByTestId('input-player-name');
 
         expect(nameInput).toBeInTheDocument();
@@ -18,7 +18,8 @@ describe('Testa a tela de login', () => {
     });
 
     it('Testa o input de email', () => {
-        render(<BrowserRouter><App /></BrowserRouter>);
+        renderWithRouterAndRedux(<Login />);
+        
         const emailInput = screen.getByTestId('input-gravatar-email');
 
         expect(emailInput).toBeInTheDocument();
@@ -29,21 +30,24 @@ describe('Testa a tela de login', () => {
     });
 
     it('Testa se o botão "Play" é renderizado', () => {
-        render(<BrowserRouter><App /></BrowserRouter>);
+        renderWithRouterAndRedux(<Login />);
+
         const playButton = screen.getByRole('button', { name: 'Play' });
 
         expect(playButton).toBeInTheDocument();
     });
 
     it('Testa se o botão "Play" é desabilitado se não tiver nada nos inputs', () => {
-        render(<BrowserRouter><App /></BrowserRouter>);
+        renderWithRouterAndRedux(<Login />);
+        
         const playButton = screen.getByRole('button', { name: 'Play' });
 
         expect(playButton).toBeDisabled();
     });
 
     it('Testa se o botão "Play" é desabilitado se não tiver nada em name, mas tiver em email', () => {
-        render(<BrowserRouter><App /></BrowserRouter>);
+        renderWithRouterAndRedux(<Login />);
+
         const nameInput = screen.getByTestId('input-player-name');
         const playButton = screen.getByRole('button', { name: 'Play' });
 
@@ -53,7 +57,8 @@ describe('Testa a tela de login', () => {
     });
 
     it('Testa se o botão "Play" é desabilitado se não tiver nada em email, mas tiver em name', () => {
-        render(<BrowserRouter><App /></BrowserRouter>);
+        renderWithRouterAndRedux(<Login />);
+
         const emailInput = screen.getByTestId('input-gravatar-email');
         const playButton = screen.getByRole('button', { name: 'Play' });
 
@@ -63,7 +68,8 @@ describe('Testa a tela de login', () => {
     });
 
     it('Testa se o botão "Play" é habilitado se tiver texto no input email e no name', () => {
-        render(<BrowserRouter><App /></BrowserRouter>);
+        renderWithRouterAndRedux(<Login />);
+
         const nameInput = screen.getByTestId('input-player-name');
         const emailInput = screen.getByTestId('input-gravatar-email');
         const playButton = screen.getByRole('button', { name: 'Play' });
@@ -73,4 +79,41 @@ describe('Testa a tela de login', () => {
 
         expect(playButton).not.toBeDisabled();
     });
+
+    it('Testa se name e email são salvos no estado global', async () => {
+        const { store } = renderWithRouterAndRedux(<Login />);
+                
+        const nameInput = screen.getByTestId('input-player-name');
+        const emailInput = screen.getByTestId('input-gravatar-email');
+        const playButton = screen.getByRole('button', { name: 'Play' });
+        
+        userEvent.type(nameInput, 'Tester');
+        userEvent.type(emailInput, 'test@test.com');
+        console.log(nameInput.value);
+        
+        userEvent.click(playButton);
+        jest.spyOn(global, 'fetch');
+        await waitFor(() => {expect(store.getState().player.name).toBe('Tester')});
+    });
+
+    it('Testa se ao clicar no botão "play" redireciona para "/game"', () => {
+        const { history } = renderWithRouterAndRedux(<Login />);
+        console.log(history.location.pathname);
+
+        const nameInput = screen.getByTestId('input-player-name');
+        const emailInput = screen.getByTestId('input-gravatar-email');
+        const playButton = screen.getByRole('button', { name: 'Play' });
+
+        userEvent.type(nameInput, 'test');
+        userEvent.type(emailInput, 'test');
+
+        userEvent.click(playButton);
+
+        expect(history.location.pathname).toBe('/game');
+    });
 });
+
+
+        // const { store, history } = renderWithRouterAndRedux(<Login />);
+        // console.log(store.getState());
+        // console.log(history);

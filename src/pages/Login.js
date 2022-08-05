@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
@@ -80,11 +79,12 @@ class Login extends React.Component {
           Play
 
         </button>
-        
+
         <Link to="/settings">
-          <button 
-            type="button" 
-            data-testid="btn-settings">
+          <button
+            type="button"
+            data-testid="btn-settings"
+          >
             Settings
           </button>
         </Link>
