@@ -1,5 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { func } from 'prop-types';
+
+import getToken from '../services/fetchToken';
+import { setPlayerName, setPlayerEmail } from '../redux/actions';
 
 class Login extends React.Component {
   constructor() {
@@ -9,6 +15,7 @@ class Login extends React.Component {
       name: '',
       email: '',
       offButton: true,
+      redirect: false,
     };
   }
 
@@ -22,8 +29,23 @@ class Login extends React.Component {
     this.setState({ [name]: value }, () => this.enableButton());
   }
 
+  handleClick = async (event) => {
+    event.preventDefault();
+
+    const { name, email } = this.state;
+    const { dispatch } = this.props;
+
+    await getToken();
+    dispatch(setPlayerName(name));
+    dispatch(setPlayerEmail(email));
+
+    this.setState({ redirect: true });
+  }
+
   render() {
-    const { name, email, offButton } = this.state;
+    const { name, email, offButton, redirect } = this.state;
+
+    if (redirect) return <Redirect to="/game" />;
 
     return (
       <form>
@@ -49,8 +71,16 @@ class Login extends React.Component {
           />
         </label>
 
-        <button type="submit" disabled={ offButton } data-testid="btn-play">Play</button>
+        <button
+          type="submit"
+          disabled={ offButton }
+          data-testid="btn-play"
+          onClick={ this.handleClick }
+        >
+          Play
 
+        </button>
+        
         <Link to="/settings">
           <button 
             type="button" 
@@ -63,4 +93,8 @@ class Login extends React.Component {
   }
 }
 
-export default Login;
+Login.propTypes = {
+  dispatch: func.isRequired,
+};
+
+export default connect()(Login);
