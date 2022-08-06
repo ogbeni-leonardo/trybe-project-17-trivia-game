@@ -1,8 +1,9 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 
-import Header from '../components/Header';
 import fetchTrivia from '../services/fetchTrivia';
+import Header from '../components/Header';
+import Counter from '../components/Counter';
 
 import '../assets/css/Game.css';
 
@@ -14,20 +15,17 @@ class Game extends React.Component {
       triviaData: [],
       triviaIndex: 0,
       showAnswers: false,
+      allAnswersButtonIsDisabled: false,
       redirect: false,
     };
   }
 
-  componentDidMount() {
-    fetchTrivia()
-      .then((data) => {
-        if (data.results.length === 0) {
-          localStorage.removeItem('token');
-          this.setState({ redirect: true });
-        } else {
-          this.setState({ triviaData: data.results });
-        }
-      });
+  async componentDidMount() {
+    const { results } = await fetchTrivia();
+    if (results.length > 0) return this.setState({ triviaData: results });
+
+    localStorage.removeItem('token');
+    this.setState({ redirect: true });
   }
 
   shuffleArray = (array) => array.sort(() => {
@@ -51,8 +49,19 @@ class Game extends React.Component {
     return this.shuffleArray(answers);
   };
 
+  endOfTime = () => {
+    this.setState({ allAnswersButtonIsDisabled: true });
+  };
+
   render() {
-    const { triviaData, triviaIndex, showAnswers, redirect } = this.state;
+    const {
+      triviaData,
+      triviaIndex,
+      showAnswers,
+      allAnswersButtonIsDisabled,
+      redirect,
+    } = this.state;
+
     const currentTrivia = triviaData[triviaIndex];
 
     if (redirect) return <Redirect to="/" />;
@@ -60,6 +69,7 @@ class Game extends React.Component {
     return (
       <main>
         <Header />
+        <Counter action={ this.endOfTime } stop={ showAnswers } />
 
         { currentTrivia && (
           <div>
@@ -69,6 +79,7 @@ class Game extends React.Component {
             <div data-testid="answer-options">
               { this.getTriviaAnswers(currentTrivia).map((answer, index) => (
                 <button
+                  disabled={ allAnswersButtonIsDisabled }
                   key={ index }
                   type="button"
                   data-testid={ answer.toTest }
