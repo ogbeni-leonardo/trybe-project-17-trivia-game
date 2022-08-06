@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
-import { updateScore } from '../redux/actions/index';
+import { updateScore, incrementAssertions } from '../redux/actions/index';
 
 import fetchTrivia from '../services/fetchTrivia';
 import Header from '../components/Header';
@@ -106,6 +106,7 @@ class Game extends React.Component {
 
       const score = BASE_RESULT + (counter * level[answer.level]);
       dispatch(updateScore(score));
+      dispatch(incrementAssertions());
     }
     this.setState({ showAnswers: true });
   };
