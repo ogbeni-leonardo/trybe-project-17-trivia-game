@@ -18,7 +18,9 @@ class Game extends React.Component {
       allAnswersButtonIsDisabled: false,
       counter: 30,
       currentTrivia: undefined,
+      nextButtonIsDisabled: false,
       redirect: false,
+      redirectTo: '/',
       showAnswers: false,
       shuffledAnswers: [],
       triviaData: [],
@@ -29,7 +31,6 @@ class Game extends React.Component {
   async componentDidMount() {
     const { results } = await fetchTrivia();
     if (results.length > 0) {
-      this.runTimer();
       return this.setState(
         { triviaData: results },
         () => this.getCurrentTrivia(),
@@ -62,11 +63,14 @@ class Game extends React.Component {
   });
 
   getCurrentTrivia = () => {
-    const { triviaData, triviaIndex } = this.state;
+    const { triviaData, triviaIndex, nextButtonIsDisabled } = this.state;
+
+    if (nextButtonIsDisabled) return this.redirectToFeedBack();
 
     const currentTrivia = triviaData[triviaIndex];
     const shuffledAnswers = this.getTriviaAnswers(currentTrivia);
     this.setState({ currentTrivia, shuffledAnswers });
+    this.runTimer();
   };
 
   getTriviaAnswers = (trivia) => {
@@ -78,6 +82,8 @@ class Game extends React.Component {
       toTest: 'correct-answer',
       value: trivia.correct_answer,
     });
+
+    console.log(trivia.correct_answer);
 
     trivia.incorrect_answers.forEach((answer, index) => {
       answers.push({
@@ -104,17 +110,40 @@ class Game extends React.Component {
     this.setState({ showAnswers: true });
   };
 
+  nextTrivia = () => {
+    this.setState(
+      (prev) => ({
+        allAnswersButtonIsDisabled: false,
+        counter: 30,
+        nextButtonIsDisabled: (prev.triviaIndex === prev.triviaData.length - 1),
+        showAnswers: false,
+        triviaIndex: prev.triviaIndex < prev.triviaData.length - 1
+          ? prev.triviaIndex + 1 : prev.triviaIndex,
+      }),
+      () => this.getCurrentTrivia(),
+    );
+  };
+
+  redirectToFeedBack = () => {
+    const { nextButtonIsDisabled } = this.state;
+    if (nextButtonIsDisabled) {
+      this.setState({ redirectTo: '/feedback', redirect: true });
+    }
+  };
+
   render() {
     const {
       allAnswersButtonIsDisabled,
       counter,
       currentTrivia,
+      nextButtonIsDisabled,
+      redirect,
+      redirectTo,
       showAnswers,
       shuffledAnswers,
-      redirect,
     } = this.state;
 
-    if (redirect) return <Redirect to="/" />;
+    if (redirect) return <Redirect to={ redirectTo } />;
 
     return (
       <main>
@@ -150,7 +179,14 @@ class Game extends React.Component {
         ) }
 
         { showAnswers && (
-          <button type="button" data-testid="btn-next">Next</button>
+          <button
+            disabled={ nextButtonIsDisabled }
+            type="button"
+            data-testid="btn-next"
+            onClick={ this.nextTrivia }
+          >
+            Next
+          </button>
         ) }
       </main>
     );
