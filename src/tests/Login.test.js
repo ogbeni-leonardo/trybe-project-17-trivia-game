@@ -4,116 +4,108 @@ import userEvent from '@testing-library/user-event';
 
 import Login from '../pages/Login';
 import renderWithRouterAndRedux from './helpers/renderWithRouterAndRedux';
+import createHash from '../services/userHash';
+
+const tokenMock = {
+  response_code: 0,
+  response_message: 'Token Generated Successfully!',
+  token: 'f00cb469ce38726ee00a7c6836761b0a4fb808181a125dcde6d50a9f3c9127b6',
+};
 
 describe('Testa a tela de login', () => {
-    it('Testa o input de nome', () => {
-        renderWithRouterAndRedux(<Login />);
-        const nameInput = screen.getByTestId('input-player-name');
+  global.fetch = jest.fn(async () => ({ json: async () => tokenMock }));
 
-        expect(nameInput).toBeInTheDocument();
+  it('Verifica se todos os componentes estão sendo renderizados na tela', () => {
+    renderWithRouterAndRedux(<Login />);
 
-        userEvent.type(nameInput, 'test');
+    const nameInput = screen.getByTestId('input-player-name');
+    const emailInput = screen.getByTestId('input-gravatar-email');
+    const playButton = screen.getByRole('button', { name: /play/i });
+    const settingsButton = screen.getByRole('button', { name: /settings/i });
 
-        expect(nameInput).toHaveValue('test');
-    });
+    expect(nameInput).toBeInTheDocument();
+    expect(emailInput).toBeInTheDocument();
+    expect(playButton).toBeInTheDocument();
+    expect(settingsButton).toBeInTheDocument();
+  });
 
-    it('Testa o input de email', () => {
-        renderWithRouterAndRedux(<Login />);
-        
-        const emailInput = screen.getByTestId('input-gravatar-email');
+  it('Verifica se os valores digitados estão presentes nos inputs', () => {
+    renderWithRouterAndRedux(<Login />);
 
-        expect(emailInput).toBeInTheDocument();
+    const nameInput = screen.getByTestId('input-player-name');
+    const emailInput = screen.getByTestId('input-gravatar-email');
 
-        userEvent.type(emailInput, 'test');
+    userEvent.type(nameInput, 'test');
+    userEvent.type(emailInput, 'test@test.com');
 
-        expect(emailInput).toHaveValue('test');
-    });
+    expect(nameInput).toHaveValue('test');
+    expect(emailInput).toHaveValue('test@test.com');
+  });
 
-    it('Testa se o botão "Play" é renderizado', () => {
-        renderWithRouterAndRedux(<Login />);
+  it('Verifica se o botão "Play" está desabilitado se os inputs forem inválidos', () => {
+    renderWithRouterAndRedux(<Login />);
 
-        const playButton = screen.getByRole('button', { name: 'Play' });
+    const playButton = screen.getByRole('button', { name: /play/i });
+    expect(playButton).toBeDisabled();
 
-        expect(playButton).toBeInTheDocument();
-    });
+    const nameInput = screen.getByTestId('input-player-name');
+    const emailInput = screen.getByTestId('input-gravatar-email');
 
-    it('Testa se o botão "Play" é desabilitado se não tiver nada nos inputs', () => {
-        renderWithRouterAndRedux(<Login />);
-        
-        const playButton = screen.getByRole('button', { name: 'Play' });
+    userEvent.type(nameInput, 'test');
+    expect(playButton).toBeDisabled();
 
-        expect(playButton).toBeDisabled();
-    });
+    userEvent.type(emailInput, 'test@test.com');
+    expect(playButton).toBeEnabled();
+  });
 
-    it('Testa se o botão "Play" é desabilitado se não tiver nada em name, mas tiver em email', () => {
-        renderWithRouterAndRedux(<Login />);
+  it('Verifica se o nome e email são salvos no estado global', async () => {
+    const { store } = renderWithRouterAndRedux(<Login />);
 
-        const nameInput = screen.getByTestId('input-player-name');
-        const playButton = screen.getByRole('button', { name: 'Play' });
+    const nameInput = screen.getByTestId('input-player-name');
+    const emailInput = screen.getByTestId('input-gravatar-email');
+    const playButton = screen.getByRole('button', { name: /play/i });
 
-        userEvent.type(nameInput, 'test');
+    userEvent.type(nameInput, 'Tester');
+    userEvent.type(emailInput, 'test@test.com');
+    userEvent.click(playButton);
 
-        expect(playButton).toBeDisabled();
-    });
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
 
-    it('Testa se o botão "Play" é desabilitado se não tiver nada em email, mas tiver em name', () => {
-        renderWithRouterAndRedux(<Login />);
+    const userHash = createHash('test@test.com');
 
-        const emailInput = screen.getByTestId('input-gravatar-email');
-        const playButton = screen.getByRole('button', { name: 'Play' });
+    expect(store.getState().player.name).toBe('Tester');
+    expect(store.getState().player.gravatarEmail).toBe(userHash);
+  });
 
-        userEvent.type(emailInput, 'test');
+  it('Verifica se o token é armazenado no localStorage', async () => {
+    renderWithRouterAndRedux(<Login />);
 
-        expect(playButton).toBeDisabled();
-    });
+    const nameInput = screen.getByTestId('input-player-name');
+    const emailInput = screen.getByTestId('input-gravatar-email');
+    const playButton = screen.getByRole('button', { name: /play/i });
 
-    it('Testa se o botão "Play" é habilitado se tiver texto no input email e no name', () => {
-        renderWithRouterAndRedux(<Login />);
+    userEvent.type(nameInput, 'Tester');
+    userEvent.type(emailInput, 'test@test.com');
+    userEvent.click(playButton);
 
-        const nameInput = screen.getByTestId('input-player-name');
-        const emailInput = screen.getByTestId('input-gravatar-email');
-        const playButton = screen.getByRole('button', { name: 'Play' });
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
 
-        userEvent.type(nameInput, 'test');
-        userEvent.type(emailInput, 'test');
+    expect(localStorage.getItem('token')).toBe(tokenMock.token);
+  });
 
-        expect(playButton).not.toBeDisabled();
-    });
+  it('Verifica se ao clicar no botão "Play" redireciona para "/game"', async () => {
+    const { history } = renderWithRouterAndRedux(<Login />);
 
-    it('Testa se name e email são salvos no estado global', async () => {
-        const { store } = renderWithRouterAndRedux(<Login />);
-                
-        const nameInput = screen.getByTestId('input-player-name');
-        const emailInput = screen.getByTestId('input-gravatar-email');
-        const playButton = screen.getByRole('button', { name: 'Play' });
-        
-        userEvent.type(nameInput, 'Tester');
-        userEvent.type(emailInput, 'test@test.com');
-        console.log(nameInput.value);
-        
-        userEvent.click(playButton);
-        jest.spyOn(global, 'fetch');
-        await waitFor(() => {expect(store.getState().player.name).toBe('Tester')});
-    });
+    const nameInput = screen.getByTestId('input-player-name');
+    const emailInput = screen.getByTestId('input-gravatar-email');
+    const playButton = screen.getByRole('button', { name: /play/i });
 
-    it('Testa se ao clicar no botão "play" redireciona para "/game"', () => {
-        const { history } = renderWithRouterAndRedux(<Login />);
-        console.log(history.location.pathname);
+    userEvent.type(nameInput, 'Tester');
+    userEvent.type(emailInput, 'test@test.com');
+    userEvent.click(playButton);
 
-        const nameInput = screen.getByTestId('input-player-name');
-        const emailInput = screen.getByTestId('input-gravatar-email');
-        const playButton = screen.getByRole('button', { name: 'Play' });
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
 
-        userEvent.type(nameInput, 'test');
-        userEvent.type(emailInput, 'test');
-
-        userEvent.click(playButton);
-
-        expect(history.location.pathname).toBe('/game');
-    });
+    expect(history.location.pathname).toBe('/game');
+  });
 });
-
-
-        // const { store, history } = renderWithRouterAndRedux(<Login />);
-        // console.log(store.getState());
-        // console.log(history);

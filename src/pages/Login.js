@@ -5,6 +5,7 @@ import { func } from 'prop-types';
 
 import getToken from '../services/fetchToken';
 import { setPlayerName, setPlayerEmail } from '../redux/actions';
+import createHash from '../services/userHash';
 
 class Login extends React.Component {
   constructor() {
@@ -13,36 +14,39 @@ class Login extends React.Component {
     this.state = {
       name: '',
       email: '',
-      offButton: true,
+      submitButtonIsDisabled: true,
       redirect: false,
     };
   }
 
-  enableButton = () => {
+  validateForm = () => {
     const { name, email } = this.state;
 
-    this.setState({ offButton: !(name.length > 0 && email.length > 0) });
+    const hasValidName = name.length > 1;
+    const hasValidEmail = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email);
+
+    this.setState({ submitButtonIsDisabled: !(hasValidName && hasValidEmail) });
   }
 
-  onInputChange = ({ target: { name, value } }) => {
-    this.setState({ [name]: value }, () => this.enableButton());
+  handleChange = ({ target: { name, value } }) => {
+    this.setState({ [name]: value }, () => this.validateForm());
   }
 
-  handleClick = async (event) => {
+  handleClick = (event) => {
     event.preventDefault();
 
     const { name, email } = this.state;
     const { dispatch } = this.props;
 
-    await getToken();
-    dispatch(setPlayerName(name));
-    dispatch(setPlayerEmail(email));
-
-    this.setState({ redirect: true });
+    getToken().then(() => {
+      dispatch(setPlayerName(name));
+      dispatch(setPlayerEmail(createHash(email)));
+      this.setState({ redirect: true });
+    });
   }
 
   render() {
-    const { name, email, offButton, redirect } = this.state;
+    const { name, email, submitButtonIsDisabled, redirect } = this.state;
 
     if (redirect) return <Redirect to="/game" />;
 
@@ -55,7 +59,7 @@ class Login extends React.Component {
             name="name"
             data-testid="input-player-name"
             value={ name }
-            onChange={ this.onInputChange }
+            onChange={ this.handleChange }
           />
         </label>
 
@@ -66,18 +70,17 @@ class Login extends React.Component {
             name="email"
             data-testid="input-gravatar-email"
             value={ email }
-            onChange={ this.onInputChange }
+            onChange={ this.handleChange }
           />
         </label>
 
         <button
           type="submit"
-          disabled={ offButton }
+          disabled={ submitButtonIsDisabled }
           data-testid="btn-play"
           onClick={ this.handleClick }
         >
           Play
-
         </button>
 
         <Link to="/settings">
