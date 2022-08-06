@@ -148,6 +148,10 @@ class Game extends React.Component {
             </div>
           </div>
         ) }
+
+        { showAnswers && (
+          <button type="button" data-testid="btn-next">Next</button>
+        ) }
       </main>
     );
   }
