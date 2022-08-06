@@ -1,9 +1,12 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { func } from 'prop-types';
+
+import { updateScore } from '../redux/actions/index';
 
 import fetchTrivia from '../services/fetchTrivia';
 import Header from '../components/Header';
-import Counter from '../components/Counter';
 
 import '../assets/css/Game.css';
 
@@ -12,64 +15,115 @@ class Game extends React.Component {
     super();
 
     this.state = {
+      allAnswersButtonIsDisabled: false,
+      counter: 30,
+      currentTrivia: undefined,
+      redirect: false,
+      showAnswers: false,
+      shuffledAnswers: [],
       triviaData: [],
       triviaIndex: 0,
-      showAnswers: false,
-      allAnswersButtonIsDisabled: false,
-      redirect: false,
     };
   }
 
   async componentDidMount() {
     const { results } = await fetchTrivia();
-    if (results.length > 0) return this.setState({ triviaData: results });
-
+    if (results.length > 0) {
+      this.runTimer();
+      return this.setState(
+        { triviaData: results },
+        () => this.getCurrentTrivia(),
+      );
+    }
     localStorage.removeItem('token');
     this.setState({ redirect: true });
   }
+
+  runTimer = () => {
+    const ONE_SECOND = 1000;
+
+    this.timer = setInterval(() => {
+      this.setState(
+        (prev) => ({ counter: prev.counter > 0 ? prev.counter - 1 : 0 }),
+        () => {
+          const { counter, showAnswers } = this.state;
+          if (counter === 0 || showAnswers) {
+            this.setState({ allAnswersButtonIsDisabled: true });
+            clearInterval(this.timer);
+          }
+        },
+      );
+    }, ONE_SECOND);
+  };
 
   shuffleArray = (array) => array.sort(() => {
     const NEGATIVE_NUMBER = -1;
     return Math.random() + Math.random() * NEGATIVE_NUMBER;
   });
 
+  getCurrentTrivia = () => {
+    const { triviaData, triviaIndex } = this.state;
+
+    const currentTrivia = triviaData[triviaIndex];
+    const shuffledAnswers = this.getTriviaAnswers(currentTrivia);
+    this.setState({ currentTrivia, shuffledAnswers });
+  };
+
   getTriviaAnswers = (trivia) => {
     const answers = [];
 
     answers.push({
-      value: trivia.correct_answer,
-      toTest: 'correct-answer',
       answer: 'right',
+      level: trivia.difficulty,
+      toTest: 'correct-answer',
+      value: trivia.correct_answer,
     });
 
     trivia.incorrect_answers.forEach((answer, index) => {
-      answers.push({ value: answer, toTest: `wrong-answer-${index}`, answer: 'wrong' });
+      answers.push({
+        answer: 'wrong',
+        level: trivia.difficulty,
+        toTest: `wrong-answer-${index}`,
+        value: answer,
+      });
     });
-
     return this.shuffleArray(answers);
   };
 
-  endOfTime = () => {
-    this.setState({ allAnswersButtonIsDisabled: true });
+  onSubmit = (answer) => {
+    const { counter } = this.state;
+    const { dispatch } = this.props;
+
+    if (answer.answer === 'right') {
+      const BASE_RESULT = 10;
+      const level = { easy: 1, medium: 2, hard: 3 };
+
+      const score = BASE_RESULT + (counter * level[answer.level]);
+      dispatch(updateScore(score));
+    }
+    this.setState({ showAnswers: true });
   };
 
   render() {
     const {
-      triviaData,
-      triviaIndex,
-      showAnswers,
       allAnswersButtonIsDisabled,
+      counter,
+      currentTrivia,
+      showAnswers,
+      shuffledAnswers,
       redirect,
     } = this.state;
-
-    const currentTrivia = triviaData[triviaIndex];
 
     if (redirect) return <Redirect to="/" />;
 
     return (
       <main>
         <Header />
-        <Counter action={ this.endOfTime } stop={ showAnswers } />
+        <p>
+          Tempo:
+          {' '}
+          {counter}
+        </p>
 
         { currentTrivia && (
           <div>
@@ -77,7 +131,7 @@ class Game extends React.Component {
             <p data-testid="question-text">{ currentTrivia.question }</p>
 
             <div data-testid="answer-options">
-              { this.getTriviaAnswers(currentTrivia).map((answer, index) => (
+              { shuffledAnswers.map((answer, index) => (
                 <button
                   disabled={ allAnswersButtonIsDisabled }
                   key={ index }
@@ -86,7 +140,7 @@ class Game extends React.Component {
                   className={
                     `answerButton ${showAnswers ? 'show' : ''} ${answer.answer}`
                   }
-                  onClick={ () => this.setState({ showAnswers: true }) }
+                  onClick={ () => this.onSubmit(answer) }
                 >
                   {answer.value}
                 </button>
@@ -99,4 +153,8 @@ class Game extends React.Component {
   }
 }
 
-export default Game;
+Game.propTypes = {
+  dispatch: func.isRequired,
+};
+
+export default connect()(Game);
