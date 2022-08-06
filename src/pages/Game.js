@@ -4,6 +4,8 @@ import { Redirect } from 'react-router-dom';
 import Header from '../components/Header';
 import fetchTrivia from '../services/fetchTrivia';
 
+import '../assets/css/Game.css';
+
 class Game extends React.Component {
   constructor() {
     super();
@@ -11,6 +13,7 @@ class Game extends React.Component {
     this.state = {
       triviaData: [],
       triviaIndex: 0,
+      showAnswers: false,
       redirect: false,
     };
   }
@@ -29,24 +32,27 @@ class Game extends React.Component {
 
   shuffleArray = (array) => array.sort(() => {
     const NEGATIVE_NUMBER = -1;
-    return Math.random() + (Math.random() * NEGATIVE_NUMBER);
+    return Math.random() + Math.random() * NEGATIVE_NUMBER;
   });
 
   getTriviaAnswers = (trivia) => {
     const answers = [];
 
-    answers.push({ value: trivia.correct_answer, toTest: 'correct-answer' });
+    answers.push({
+      value: trivia.correct_answer,
+      toTest: 'correct-answer',
+      answer: 'right',
+    });
 
     trivia.incorrect_answers.forEach((answer, index) => {
-      answers.push({ value: answer, toTest: `wrong-answer-${index}` });
+      answers.push({ value: answer, toTest: `wrong-answer-${index}`, answer: 'wrong' });
     });
 
     return this.shuffleArray(answers);
   };
 
   render() {
-    const { triviaData, triviaIndex, redirect } = this.state;
-
+    const { triviaData, triviaIndex, showAnswers, redirect } = this.state;
     const currentTrivia = triviaData[triviaIndex];
 
     if (redirect) return <Redirect to="/" />;
@@ -60,15 +66,21 @@ class Game extends React.Component {
             <p data-testid="question-category">{currentTrivia.category}</p>
             <p data-testid="question-text">{ currentTrivia.question }</p>
 
-            <ul data-testid="answer-options">
+            <div data-testid="answer-options">
               { this.getTriviaAnswers(currentTrivia).map((answer, index) => (
-                <li key={ index } data-testid={ answer.toTest }>
-                  <button type="button">
-                    {answer.value}
-                  </button>
-                </li>
+                <button
+                  key={ index }
+                  type="button"
+                  data-testid={ answer.toTest }
+                  className={
+                    `answerButton ${showAnswers ? 'show' : ''} ${answer.answer}`
+                  }
+                  onClick={ () => this.setState({ showAnswers: true }) }
+                >
+                  {answer.value}
+                </button>
               )) }
-            </ul>
+            </div>
           </div>
         ) }
       </main>
