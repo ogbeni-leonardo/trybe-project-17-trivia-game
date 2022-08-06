@@ -10,6 +10,7 @@ const INITIAL_STATE = {
   assertions: 0,
   score: 0,
   gravatarEmail: '',
+  totalQuestions: 0,
 };
 
 const player = (state = INITIAL_STATE, action) => {

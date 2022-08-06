@@ -30,12 +30,11 @@ class Game extends React.Component {
 
   async componentDidMount() {
     const { results } = await fetchTrivia();
+
     if (results.length > 0) {
-      return this.setState(
-        { triviaData: results },
-        () => this.getCurrentTrivia(),
-      );
+      return this.setState({ triviaData: results }, () => this.getCurrentTrivia());
     }
+
     localStorage.removeItem('token');
     this.setState({ redirect: true });
   }
