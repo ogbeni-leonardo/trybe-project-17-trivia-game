@@ -3,6 +3,7 @@ import {
   SET_PLAYER_EMAIL,
   UPDATE_SCORE,
   INCREMENT_ASSERTIONS,
+  RESET_STATE,
 } from '../actions';
 
 const INITIAL_STATE = {
@@ -23,6 +24,8 @@ const player = (state = INITIAL_STATE, action) => {
     return { ...state, score: state.score + action.payload };
   case INCREMENT_ASSERTIONS:
     return { ...state, assertions: state.assertions + 1 };
+  case RESET_STATE:
+    return INITIAL_STATE;
   default:
     return state;
   }
