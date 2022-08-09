@@ -9,7 +9,7 @@ class Feedback extends React.Component {
   constructor() {
     super();
 
-    this.state = { rankingPage: false };
+    this.state = { rankingPage: false, redirectPlayAgain: false };
   }
 
   componentDidMount = () => this.memoryCard();
@@ -32,8 +32,14 @@ class Feedback extends React.Component {
     localStorage.setItem('ranking', JSON.stringify([data]));
   };
 
+  playAgain = () => {
+    this.setState({
+      redirectPlayAgain: true,
+    });
+  }
+
   render() {
-    const { rankingPage } = this.state;
+    const { rankingPage, redirectPlayAgain } = this.state;
     const { assertions, score } = this.props;
     const MIN_OF_ASSERTIONS = 3;
     return (
@@ -54,6 +60,14 @@ class Feedback extends React.Component {
         >
           Ranking
         </button>
+        <button
+          type="button"
+          data-testid="btn-play-again"
+          onClick={ this.playAgain }
+        >
+          Play Again
+        </button>
+        { redirectPlayAgain && <Redirect to="/" /> }
         { rankingPage && <Redirect to="/ranking" /> }
       </main>
     );
