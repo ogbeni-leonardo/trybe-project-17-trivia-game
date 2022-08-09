@@ -39,6 +39,8 @@ class Game extends React.Component {
     this.setState({ redirect: true });
   }
 
+  componentWillUnmount() { clearInterval(this.timer); }
+
   runTimer = () => {
     const ONE_SECOND = 1000;
 
