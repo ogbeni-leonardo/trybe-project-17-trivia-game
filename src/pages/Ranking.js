@@ -19,7 +19,8 @@ class Ranking extends React.Component {
   getRanking = () => {
     const localStorageData = localStorage.getItem('ranking');
     const rankingData = JSON.parse(localStorageData);
-    return rankingData.sort((a, b) => a.score - b.score);
+    console.log(rankingData);
+    return rankingData.sort((a, b) => b.score - a.score);
   }
 
   render() {

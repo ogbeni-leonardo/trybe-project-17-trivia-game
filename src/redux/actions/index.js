@@ -9,3 +9,6 @@ export const updateScore = (payload) => ({ type: UPDATE_SCORE, payload });
 
 export const INCREMENT_ASSERTIONS = 'INCREMENT_ASSERTIONS';
 export const incrementAssertions = () => ({ type: INCREMENT_ASSERTIONS });
+
+export const RESET_STATE = 'RESET_STATE';
+export const resetState = () => ({ type: RESET_STATE });

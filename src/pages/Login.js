@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
 import getToken from '../services/fetchToken';
-import { setPlayerName, setPlayerEmail } from '../redux/actions';
+import { setPlayerName, setPlayerEmail, resetState } from '../redux/actions';
 import createHash from '../services/userHash';
 
 class Login extends React.Component {
@@ -17,6 +17,11 @@ class Login extends React.Component {
       submitButtonIsDisabled: true,
       redirect: false,
     };
+  }
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch(resetState());
   }
 
   validateForm = () => {
