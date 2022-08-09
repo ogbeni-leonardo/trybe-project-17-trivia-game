@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { number } from 'prop-types';
+import { number, shape, string } from 'prop-types';
 import { Redirect } from 'react-router-dom';
 
 import Header from '../components/Header';
@@ -12,7 +12,25 @@ class Feedback extends React.Component {
     this.state = { rankingPage: false };
   }
 
+  componentDidMount = () => this.memoryCard();
+
   rankingRedirect = () => this.setState({ rankingPage: true });
+
+  memoryCard = () => {
+    const { playerData: { name, gravatarEmail: picture, score } } = this.props;
+    const data = { name, picture, score };
+
+    const localStorageVerify = localStorage.getItem('ranking');
+    if (localStorageVerify !== null) {
+      const oldRankingData = [
+        ...JSON.parse(localStorageVerify),
+        { name, picture, score },
+      ];
+      return localStorage.setItem('ranking', JSON.stringify(oldRankingData));
+    }
+
+    localStorage.setItem('ranking', JSON.stringify([data]));
+  };
 
   render() {
     const { rankingPage } = this.state;
@@ -45,11 +63,19 @@ class Feedback extends React.Component {
 Feedback.propTypes = {
   assertions: number.isRequired,
   score: number.isRequired,
+  playerData: shape({
+    gravatarEmail: string.isRequired,
+    name: string.isRequired,
+    score: number.isRequired,
+    assertions: number.isRequired,
+    totalQuestions: number.isRequired,
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
   assertions: state.player.assertions,
   score: state.player.score,
+  playerData: state.player,
 });
 
 export default connect(mapStateToProps)(Feedback);
