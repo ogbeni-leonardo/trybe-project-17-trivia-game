@@ -82,7 +82,6 @@ Feedback.propTypes = {
     name: string.isRequired,
     score: number.isRequired,
     assertions: number.isRequired,
-    totalQuestions: number.isRequired,
   }).isRequired,
 };
 
