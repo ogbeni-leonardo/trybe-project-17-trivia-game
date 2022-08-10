@@ -18,7 +18,6 @@ class Game extends React.Component {
       allAnswersButtonIsDisabled: false,
       counter: 30,
       currentTrivia: undefined,
-      nextButtonIsDisabled: false,
       redirect: false,
       redirectTo: '/',
       showAnswers: false,
@@ -41,12 +40,12 @@ class Game extends React.Component {
 
   componentWillUnmount() { clearInterval(this.timer); }
 
-  runTimer = () => {
+  startTimer = () => {
     const ONE_SECOND = 1000;
 
     this.timer = setInterval(() => {
       this.setState(
-        (prev) => ({ counter: prev.counter > 0 ? prev.counter - 1 : 0 }),
+        (prev) => ({ counter: prev.counter - 1 }),
         () => {
           const { counter, showAnswers } = this.state;
           if (counter === 0 || showAnswers) {
@@ -63,17 +62,6 @@ class Game extends React.Component {
     return Math.random() + Math.random() * NEGATIVE_NUMBER;
   });
 
-  getCurrentTrivia = () => {
-    const { triviaData, triviaIndex, nextButtonIsDisabled } = this.state;
-
-    if (nextButtonIsDisabled) return this.redirectToFeedBack();
-
-    const currentTrivia = triviaData[triviaIndex];
-    const shuffledAnswers = this.getTriviaAnswers(currentTrivia);
-    this.setState({ currentTrivia, shuffledAnswers });
-    this.runTimer();
-  };
-
   getTriviaAnswers = (trivia) => {
     const answers = [];
 
@@ -84,7 +72,7 @@ class Game extends React.Component {
       value: trivia.correct_answer,
     });
 
-    console.log(trivia.correct_answer);
+    // console.log(trivia.correct_answer);
 
     trivia.incorrect_answers.forEach((answer, index) => {
       answers.push({
@@ -94,10 +82,22 @@ class Game extends React.Component {
         value: answer,
       });
     });
+
     return this.shuffleArray(answers);
   };
 
-  onSubmit = (answer) => {
+  getCurrentTrivia = () => {
+    const { triviaData, triviaIndex } = this.state;
+
+    if (triviaData.length === triviaIndex) return this.redirectToFeedBack();
+
+    const currentTrivia = triviaData[triviaIndex];
+    const shuffledAnswers = this.getTriviaAnswers(currentTrivia);
+
+    this.setState({ currentTrivia, shuffledAnswers }, () => this.startTimer());
+  };
+
+  onSubmitAnswer = (answer) => {
     const { counter } = this.state;
     const { dispatch } = this.props;
 
@@ -106,31 +106,33 @@ class Game extends React.Component {
       const level = { easy: 1, medium: 2, hard: 3 };
 
       const score = BASE_RESULT + (counter * level[answer.level]);
+
       dispatch(updateScore(score));
       dispatch(incrementAssertions());
     }
+
     this.setState({ showAnswers: true });
   };
 
   nextTrivia = () => {
+    const updateStateToSetNewTrivia = (prevState) => ({
+      allAnswersButtonIsDisabled: false,
+      counter: 30,
+      showAnswers: false,
+      triviaIndex: prevState.triviaIndex + 1,
+    });
+
     this.setState(
-      (prev) => ({
-        allAnswersButtonIsDisabled: false,
-        counter: 30,
-        nextButtonIsDisabled: (prev.triviaIndex === prev.triviaData.length - 1),
-        showAnswers: false,
-        triviaIndex: prev.triviaIndex < prev.triviaData.length - 1
-          ? prev.triviaIndex + 1 : prev.triviaIndex,
-      }),
+      updateStateToSetNewTrivia,
       () => this.getCurrentTrivia(),
     );
   };
 
   redirectToFeedBack = () => {
-    const { nextButtonIsDisabled } = this.state;
-    if (nextButtonIsDisabled) {
-      this.setState({ redirectTo: '/feedback', redirect: true });
-    }
+    this.setState(
+      { redirectTo: '/feedback' },
+      () => this.setState({ redirect: true }),
+    );
   };
 
   render() {
@@ -138,7 +140,6 @@ class Game extends React.Component {
       allAnswersButtonIsDisabled,
       counter,
       currentTrivia,
-      nextButtonIsDisabled,
       redirect,
       redirectTo,
       showAnswers,
@@ -171,7 +172,7 @@ class Game extends React.Component {
                   className={
                     `answerButton ${showAnswers ? 'show' : ''} ${answer.answer}`
                   }
-                  onClick={ () => this.onSubmit(answer) }
+                  onClick={ () => this.onSubmitAnswer(answer) }
                 >
                   {answer.value}
                 </button>
@@ -182,7 +183,6 @@ class Game extends React.Component {
 
         { showAnswers && (
           <button
-            disabled={ nextButtonIsDisabled }
             type="button"
             data-testid="btn-next"
             onClick={ this.nextTrivia }
