@@ -1,11 +1,34 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { func } from 'prop-types';
+import { func, string } from 'prop-types';
+import {
+  BsPlayCircleFill,
+  BsFillGearFill,
+  BsFillSunFill,
+  BsFillMoonFill,
+} from 'react-icons/bs';
 
 import getToken from '../services/fetchToken';
-import { setPlayerName, setPlayerEmail, resetState } from '../redux/actions';
+import {
+  setPlayerName,
+  setPlayerEmail,
+  resetState,
+  changeTheme,
+} from '../redux/actions';
 import createHash from '../services/userHash';
+
+import LoginPage, {
+  LoginForm,
+  LoginFormTitleContainer,
+  LoginFormDataContainer,
+  LoginFormLabel,
+  LoginFormInput,
+  LoginFormSubmit,
+  SettingContainer,
+  SettingsLink,
+  ThemeChangerButton,
+} from './Login.styles';
 
 class Login extends React.Component {
   constructor() {
@@ -52,57 +75,90 @@ class Login extends React.Component {
 
   render() {
     const { name, email, submitButtonIsDisabled, redirect } = this.state;
+    const { dispatch, theme } = this.props;
 
     if (redirect) return <Redirect to="/game" />;
 
     return (
-      <form>
-        <label htmlFor="name">
-          <input
-            type="text"
-            id="name"
-            name="name"
-            data-testid="input-player-name"
-            value={ name }
-            onChange={ this.handleChange }
-          />
-        </label>
+      <LoginPage>
+        <LoginForm>
+          <LoginFormTitleContainer>
+            <h1>
+              Ninth
+              <span>Game</span>
+            </h1>
+          </LoginFormTitleContainer>
 
-        <label htmlFor="email">
-          <input
-            type="email"
-            id="email"
-            name="email"
-            data-testid="input-gravatar-email"
-            value={ email }
-            onChange={ this.handleChange }
-          />
-        </label>
+          <LoginFormDataContainer>
+            <LoginFormLabel htmlFor="name">
+              Nome:
+              <LoginFormInput
+                type="text"
+                id="name"
+                name="name"
+                data-testid="input-player-name"
+                value={ name }
+                onChange={ this.handleChange }
+                placeholder="Digite seu nome"
+              />
+            </LoginFormLabel>
 
-        <button
-          type="submit"
-          disabled={ submitButtonIsDisabled }
-          data-testid="btn-play"
-          onClick={ this.handleClick }
-        >
-          Play
-        </button>
+            <LoginFormLabel htmlFor="email">
+              E-mail:
+              <LoginFormInput
+                type="email"
+                id="email"
+                name="email"
+                data-testid="input-gravatar-email"
+                value={ email }
+                onChange={ this.handleChange }
+                placeholder="Digite seu email"
+              />
+            </LoginFormLabel>
+          </LoginFormDataContainer>
 
-        <Link to="/settings">
-          <button
-            type="button"
-            data-testid="btn-settings"
+          <LoginFormSubmit
+            type="submit"
+            disabled={ submitButtonIsDisabled }
+            data-testid="btn-play"
+            onClick={ this.handleClick }
           >
-            Settings
-          </button>
-        </Link>
-      </form>
+            Start
+            <BsPlayCircleFill />
+          </LoginFormSubmit>
+        </LoginForm>
+
+        <SettingContainer>
+          <SettingsLink
+            to="/settings"
+            data-testid="btn-settings"
+            title="Configurações"
+          >
+            <BsFillGearFill />
+          </SettingsLink>
+
+          <ThemeChangerButton
+            type="button"
+            title="Mudar tema"
+            onClick={ () => dispatch(changeTheme()) }
+          >
+            { theme === 'dark' ? <BsFillSunFill /> : <BsFillMoonFill /> }
+          </ThemeChangerButton>
+        </SettingContainer>
+      </LoginPage>
     );
   }
 }
 
 Login.propTypes = {
   dispatch: func.isRequired,
+  theme: string.isRequired,
 };
 
-export default connect()(Login);
+const mapStateToProps = (state) => ({
+  theme: state.player.theme,
+});
+
+const mapDispatchToProps = (dispatch) => ({ dispatch });
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

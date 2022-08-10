@@ -1,8 +1,28 @@
 import React from 'react';
-import Content from './routes';
+import { string } from 'prop-types';
+import { connect } from 'react-redux';
+import { ThemeProvider } from 'styled-components';
 
-export default function App() {
+import Content from './routes';
+import GlobalStyles from './global.styles';
+
+import * as themes from './themes';
+
+function App({ theme }) {
   return (
-    <Content />
+    <ThemeProvider theme={ themes[theme] }>
+      <GlobalStyles />
+      <Content />
+    </ThemeProvider>
   );
 }
+
+App.propTypes = {
+  theme: string.isRequired,
+};
+
+const mapStateToProps = ({ player: { theme } }) => ({
+  theme,
+});
+
+export default connect(mapStateToProps)(App);

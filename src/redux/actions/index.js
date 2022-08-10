@@ -12,3 +12,6 @@ export const incrementAssertions = () => ({ type: INCREMENT_ASSERTIONS });
 
 export const RESET_STATE = 'RESET_STATE';
 export const resetState = () => ({ type: RESET_STATE });
+
+export const CHANGE_THEME = 'CHANGE_THEME';
+export const changeTheme = () => ({ type: CHANGE_THEME });

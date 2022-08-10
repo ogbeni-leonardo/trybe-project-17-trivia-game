@@ -4,6 +4,7 @@ import {
   UPDATE_SCORE,
   INCREMENT_ASSERTIONS,
   RESET_STATE,
+  CHANGE_THEME,
 } from '../actions';
 
 const INITIAL_STATE = {
@@ -11,6 +12,7 @@ const INITIAL_STATE = {
   assertions: 0,
   score: 0,
   gravatarEmail: '',
+  theme: 'dark',
 };
 
 const player = (state = INITIAL_STATE, action) => {
@@ -25,6 +27,11 @@ const player = (state = INITIAL_STATE, action) => {
     return { ...state, assertions: state.assertions + 1 };
   case RESET_STATE:
     return INITIAL_STATE;
+  case CHANGE_THEME:
+    return {
+      ...state,
+      theme: state.theme === 'light' ? 'dark' : 'light',
+    };
   default:
     return state;
   }
