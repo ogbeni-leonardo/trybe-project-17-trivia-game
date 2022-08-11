@@ -1,15 +1,19 @@
 import { createGlobalStyle } from 'styled-components';
+import Inter from './assets/fonts/Inter.ttf';
 
-const GlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
-  
+const GlobalStyles = createGlobalStyle`  
   * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
     border: 0;
+    box-sizing: border-box;
+    font-family: Inter, sans-serif;
+    margin: 0;
     outline: none;
-    font-family: 'Inter', sans-serif
+    padding: 0;
+  }
+
+  @font-face {
+    font-family: Inter;
+    src: local('Inter'), url(${Inter}) format('truetype');
   }
 
   :root {
@@ -22,10 +26,10 @@ const GlobalStyles = createGlobalStyle`
   }
 
   body {
-    min-height: 500px;
-    height: 100vh;
     background-color: ${({ theme }) => theme.defaultBackground};
     color: ${({ theme }) => theme.fontColor};
+    height: 100vh;
+    min-height: 500px;
   }
 `;
 
