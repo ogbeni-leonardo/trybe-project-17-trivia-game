@@ -1,33 +1,59 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { number, string } from 'prop-types';
+import { string } from 'prop-types';
+import { IoIosLogOut } from 'react-icons/io';
+
+import HeaderContainer, {
+  HeaderTitle,
+  HeaderUserContainer,
+  HeaderUser,
+  Logout,
+} from './Header.styles';
 
 class Header extends React.Component {
   render() {
-    const { name, score, gravatarEmail } = this.props;
+    const { name, gravatarEmail } = this.props;
     return (
-      <header>
-        <img
-          src={ `https://www.gravatar.com/avatar/${gravatarEmail}` }
-          alt="Avatar"
-          data-testid="header-profile-picture"
-        />
-        <p data-testid="header-player-name">{name}</p>
-        <p data-testid="header-score">{score}</p>
-      </header>
+      <HeaderContainer>
+        <HeaderTitle>
+          Ninth
+          <span>Game</span>
+        </HeaderTitle>
+
+        <HeaderUserContainer>
+          <HeaderUser>
+            <img
+              src={ `https://avatars.dicebear.com/api/bottts/${gravatarEmail}.svg` }
+              alt="robot-avatar"
+              data-testid="header-profile-picture"
+            />
+
+            <p data-testid="header-player-name">{name}</p>
+
+            <Logout to="/" title="Sair">
+              <IoIosLogOut
+                style={ {
+                  left: '50%',
+                  position: 'absolute',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                } }
+              />
+            </Logout>
+          </HeaderUser>
+        </HeaderUserContainer>
+      </HeaderContainer>
     );
   }
 }
 
 Header.propTypes = {
   name: string.isRequired,
-  score: number.isRequired,
   gravatarEmail: string.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   name: state.player.name,
-  score: state.player.score,
   gravatarEmail: state.player.gravatarEmail,
 });
 
