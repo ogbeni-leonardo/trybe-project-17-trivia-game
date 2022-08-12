@@ -2,24 +2,45 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
+import { RiCloseCircleLine } from 'react-icons/ri';
+import { BsCheck2Circle } from 'react-icons/bs';
+import { BiTimeFive } from 'react-icons/bi';
 
+import { decode } from 'html-entities';
+import fetchTrivia from '../services/fetchTrivia';
 import { updateScore, incrementAssertions } from '../redux/actions/index';
 
-import fetchTrivia from '../services/fetchTrivia';
 import Header from '../components/Header';
 
 import '../assets/css/Game.css';
+import GamePage, {
+  ProgressTimer,
+  GameContainer,
+  TriviaGame,
+  CurrentTriviaIndex,
+  TriviaContainer,
+  TriviaCategory,
+  TriviaQuestion,
+  AnswerButtonsContainer,
+  AnswerButton,
+  AlertMessageContainer,
+  CorrectAnswerAlert,
+  IncorrectAnswerAlert,
+  TimeIsOver,
+  NextTriviaButton,
+} from './Game.styles';
 
 class Game extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      allAnswersButtonIsDisabled: false,
+      answerButtonsIsDisabled: false,
       counter: 30,
       currentTrivia: undefined,
       redirect: false,
       redirectTo: '/',
+      selectedAnswerIsCorrect: undefined,
       showAnswers: false,
       shuffledAnswers: [],
       triviaData: [],
@@ -29,11 +50,9 @@ class Game extends React.Component {
 
   async componentDidMount() {
     const { results } = await fetchTrivia();
-
     if (results.length > 0) {
       return this.setState({ triviaData: results }, () => this.getCurrentTrivia());
     }
-
     localStorage.removeItem('token');
     this.setState({ redirect: true });
   }
@@ -49,7 +68,7 @@ class Game extends React.Component {
         () => {
           const { counter, showAnswers } = this.state;
           if (counter === 0 || showAnswers) {
-            this.setState({ allAnswersButtonIsDisabled: true });
+            this.setState({ answerButtonsIsDisabled: true, showAnswers: true });
             clearInterval(this.timer);
           }
         },
@@ -72,8 +91,6 @@ class Game extends React.Component {
       value: trivia.correct_answer,
     });
 
-    // console.log(trivia.correct_answer);
-
     trivia.incorrect_answers.forEach((answer, index) => {
       answers.push({
         answer: 'wrong',
@@ -82,13 +99,11 @@ class Game extends React.Component {
         value: answer,
       });
     });
-
     return this.shuffleArray(answers);
   };
 
   getCurrentTrivia = () => {
     const { triviaData, triviaIndex } = this.state;
-
     if (triviaData.length === triviaIndex) return this.redirectToFeedBack();
 
     const currentTrivia = triviaData[triviaIndex];
@@ -104,93 +119,119 @@ class Game extends React.Component {
     if (answer.answer === 'right') {
       const BASE_RESULT = 10;
       const level = { easy: 1, medium: 2, hard: 3 };
+      const scoreCalc = BASE_RESULT + (counter * level[answer.level]);
 
-      const score = BASE_RESULT + (counter * level[answer.level]);
-
-      dispatch(updateScore(score));
+      dispatch(updateScore(scoreCalc));
       dispatch(incrementAssertions());
     }
-
-    this.setState({ showAnswers: true });
+    this.setState({
+      selectedAnswerIsCorrect: answer.answer === 'right',
+      showAnswers: true,
+    });
   };
 
   nextTrivia = () => {
     const updateStateToSetNewTrivia = (prevState) => ({
-      allAnswersButtonIsDisabled: false,
+      answerButtonsIsDisabled: false,
+      selectedAnswerIsCorrect: undefined,
       counter: 30,
       showAnswers: false,
       triviaIndex: prevState.triviaIndex + 1,
     });
 
-    this.setState(
-      updateStateToSetNewTrivia,
-      () => this.getCurrentTrivia(),
-    );
+    this.setState(updateStateToSetNewTrivia, () => this.getCurrentTrivia());
   };
 
   redirectToFeedBack = () => {
-    this.setState(
-      { redirectTo: '/feedback' },
-      () => this.setState({ redirect: true }),
-    );
+    this.setState({ redirectTo: '/feedback', redirect: true });
   };
 
   render() {
     const {
-      allAnswersButtonIsDisabled,
-      counter,
+      answerButtonsIsDisabled,
       currentTrivia,
       redirect,
       redirectTo,
+      selectedAnswerIsCorrect,
       showAnswers,
       shuffledAnswers,
+      triviaIndex,
+      counter,
     } = this.state;
 
     if (redirect) return <Redirect to={ redirectTo } />;
 
     return (
-      <main>
+      <GamePage>
         <Header />
-        <p>
-          Tempo:
-          {' '}
-          {counter}
-        </p>
 
-        { currentTrivia && (
-          <div>
-            <p data-testid="question-category">{currentTrivia.category}</p>
-            <p data-testid="question-text">{ currentTrivia.question }</p>
+        <GameContainer>
+          <ProgressTimer counterTime={ showAnswers ? counter : undefined } />
 
-            <div data-testid="answer-options">
-              { shuffledAnswers.map((answer, index) => (
-                <button
-                  disabled={ allAnswersButtonIsDisabled }
-                  key={ index }
-                  type="button"
-                  data-testid={ answer.toTest }
-                  className={
-                    `answerButton ${showAnswers ? 'show' : ''} ${answer.answer}`
-                  }
-                  onClick={ () => this.onSubmitAnswer(answer) }
-                >
-                  {answer.value}
-                </button>
-              )) }
-            </div>
-          </div>
-        ) }
+          <TriviaGame>
+            { currentTrivia && (
+              <TriviaContainer>
+                <CurrentTriviaIndex>
+                  {`Question ${triviaIndex + 1}/5`}
+                </CurrentTriviaIndex>
 
-        { showAnswers && (
-          <button
-            type="button"
-            data-testid="btn-next"
-            onClick={ this.nextTrivia }
-          >
-            Next
-          </button>
-        ) }
-      </main>
+                <TriviaCategory>{currentTrivia.category}</TriviaCategory>
+                <TriviaQuestion>{decode(currentTrivia.question)}</TriviaQuestion>
+
+                <AnswerButtonsContainer>
+                  { shuffledAnswers.map((answer, index) => (
+                    <AnswerButton
+                      answer={ answer.answer }
+                      disabled={ answerButtonsIsDisabled }
+                      key={ index }
+                      onClick={ () => this.onSubmitAnswer(answer) }
+                      type="button"
+                      showAnswer={ showAnswers }
+                    >
+                      {decode(answer.value)}
+                    </AnswerButton>
+                  )) }
+                </AnswerButtonsContainer>
+              </TriviaContainer>
+            ) }
+          </TriviaGame>
+
+          <AlertMessageContainer>
+            { !showAnswers && <p>Aguardando sua resposta...</p> }
+
+            { showAnswers && selectedAnswerIsCorrect && (
+              <CorrectAnswerAlert>
+                <BsCheck2Circle />
+                Resposta correta!
+              </CorrectAnswerAlert>
+            )}
+
+            { showAnswers && selectedAnswerIsCorrect === false && (
+              <IncorrectAnswerAlert>
+                <RiCloseCircleLine />
+                Resposta incorreta!
+              </IncorrectAnswerAlert>
+            )}
+
+            { showAnswers && selectedAnswerIsCorrect === undefined && (
+              <TimeIsOver>
+                <BiTimeFive />
+                Seu tempo esgotou!
+              </TimeIsOver>
+            )}
+
+            { showAnswers && (
+              <NextTriviaButton
+                data-testid="btn-next"
+                onClick={ this.nextTrivia }
+                type="button"
+              >
+                Next
+              </NextTriviaButton>
+            ) }
+          </AlertMessageContainer>
+        </GameContainer>
+      </GamePage>
     );
   }
 }
