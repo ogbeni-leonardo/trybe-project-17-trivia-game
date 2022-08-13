@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { number, shape, string } from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import Header from '../components/Header';
+import MainContent, { ButtonContent, DivContent, DivInitialContent } from './Feedback.styles';
 
 class Feedback extends React.Component {
   constructor() {
@@ -42,33 +43,37 @@ class Feedback extends React.Component {
     const { assertions, score } = this.props;
     const MIN_OF_ASSERTIONS = 3;
     return (
-      <main>
+      <MainContent>
         <Header />
-        <p data-testid="feedback-text">
-          {assertions < MIN_OF_ASSERTIONS ? 'Could be better...' : 'Well Done!'}
-        </p>
-        <p data-testid="feedback-total-score">{score}</p>
-        <p data-testid="feedback-total-question">{assertions}</p>
-        <button
-          type="button"
-          data-testid="btn-ranking"
-          onClick={ (event) => {
-            event.preventDefault();
-            this.rankingRedirect();
-          } }
-        >
-          Ranking
-        </button>
-        <button
-          type="button"
-          data-testid="btn-play-again"
-          onClick={ this.playAgain }
-        >
-          Play Again
-        </button>
+        <DivInitialContent>
+          <p data-testid="feedback-text">
+            {assertions < MIN_OF_ASSERTIONS ? 'Could be better...' : 'Well Done!'}
+          </p>
+          <p data-testid="feedback-total-score">{score}</p>
+          <p data-testid="feedback-total-question">{assertions}</p>
+          <DivContent>
+            <ButtonContent
+              type="button"
+              data-testid="btn-ranking"
+              onClick={ (event) => {
+                event.preventDefault();
+                this.rankingRedirect();
+              } }
+            >
+              Ranking
+            </ButtonContent>
+            <ButtonContent
+              type="button"
+              data-testid="btn-play-again"
+              onClick={ this.playAgain }
+            >
+              Play Again
+            </ButtonContent>
+          </DivContent>
+        </DivInitialContent>
         { redirectPlayAgain && <Redirect to="/" /> }
         { rankingPage && <Redirect to="/ranking" /> }
-      </main>
+      </MainContent>
     );
   }
 }
