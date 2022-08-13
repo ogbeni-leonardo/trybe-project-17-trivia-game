@@ -3,7 +3,11 @@ import { connect } from 'react-redux';
 import { number, shape, string } from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import Header from '../components/Header';
-import MainContent, { ButtonContent, DivContent, DivInitialContent } from './Feedback.styles';
+import MainContent, {
+  ButtonContent,
+  DivContent,
+  DivInitialContent,
+} from './Feedback.styles';
 
 class Feedback extends React.Component {
   constructor() {
