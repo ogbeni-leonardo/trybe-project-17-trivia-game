@@ -1,14 +1,14 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { func } from 'prop-types';
+import { func, number, string } from 'prop-types';
 import { RiCloseCircleLine } from 'react-icons/ri';
 import { BsCheck2Circle } from 'react-icons/bs';
 import { BiTimeFive } from 'react-icons/bi';
 import { decode } from 'html-entities';
 
 import fetchTrivia from '../services/fetchTrivia';
-import { updateScore, incrementAssertions } from '../redux/actions/index';
+import { updateScore, incrementAssertions, setAmount } from '../redux/actions/index';
 
 import Header from '../components/Header';
 import GameStats from '../components/GameStats';
@@ -42,10 +42,12 @@ class Game extends React.Component {
     const { results } = await fetchTrivia();
 
     if (results.length > 0) {
+      const { dispatch } = this.props;
+      dispatch(setAmount(results.length));
       return this.setState({ triviaData: results }, () => this.getCurrentTrivia());
     }
 
-    localStorage.removeItem('token');
+    localStorage.removeItem('apiConfig');
     this.setState({ redirect: true });
   }
 
@@ -142,7 +144,9 @@ class Game extends React.Component {
       selectedAnswerIsCorrect, showAnswers, shuffledAnswers, triviaIndex,
     } = this.state;
 
-    if (redirect) return <Redirect to={ redirectTo } />;
+    const { amount, name } = this.props;
+
+    if (redirect || name === '') return <Redirect to={ redirectTo } />;
 
     const ANIMATIONS_NAME = ['one', 'two', 'three', 'four', 'five'];
 
@@ -160,7 +164,7 @@ class Game extends React.Component {
               { currentTrivia && (
                 <TriviaContainer>
                   <CurrentTriviaIndex>
-                    {`Question ${triviaIndex + 1}/5`}
+                    {`Question ${triviaIndex + 1}/${amount}`}
                   </CurrentTriviaIndex>
 
                   <TriviaCategory>{currentTrivia.category}</TriviaCategory>
@@ -185,26 +189,26 @@ class Game extends React.Component {
             </TriviaGame>
 
             <AlertMessageContainer>
-              { !showAnswers && <p>Aguardando sua resposta...</p> }
+              { !showAnswers && <p>Waiting for the answer...</p> }
 
               { showAnswers && selectedAnswerIsCorrect && (
                 <CorrectAnswerAlert>
                   <BsCheck2Circle />
-                  Resposta correta!
+                  Right answer!
                 </CorrectAnswerAlert>
               )}
 
               { showAnswers && selectedAnswerIsCorrect === false && (
                 <IncorrectAnswerAlert>
                   <RiCloseCircleLine />
-                  Resposta incorreta!
+                  Incorrect answer!
                 </IncorrectAnswerAlert>
               )}
 
               { showAnswers && selectedAnswerIsCorrect === undefined && (
                 <TimeIsOver>
                   <BiTimeFive />
-                  Seu tempo esgotou!
+                  Your time is over!
                 </TimeIsOver>
               )}
 
@@ -227,6 +231,9 @@ class Game extends React.Component {
   }
 }
 
-Game.propTypes = { dispatch: func.isRequired };
+Game.propTypes = {
+  amount: number.isRequired, dispatch: func.isRequired, name: string.isRequired };
 
-export default connect()(Game);
+const mapStateToProps = ({ player: { amount, name } }) => ({ amount, name });
+
+export default connect(mapStateToProps)(Game);

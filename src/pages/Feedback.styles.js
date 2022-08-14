@@ -1,49 +1,58 @@
 import styled from 'styled-components';
 
-const MainContent = styled.main`
-  // display: flex;
-  // height: 100vh;
-  & p {
-    text-align: center;
-    display:flex;
-    flex-direction: collumn;
-    margin-top: 15px;
-    justify-content: center;
-    color: ${({ theme }) => theme.theme};
-    font-weight: 500;
-    font-size: 1.4rem;
+const FeedbackPage = styled.main`
+  display: flex;
+  flex-direction: column;
+  min-height: max(100vh, 500px);
+  min-width: 300px;
+`;
+
+export const FeedbackContainer = styled.div`
+  margin: auto;
+  padding-block: 20px;
+`;
+
+export const FeedbackContent = styled.div`
+  align-items: flex-start;
+  background-color: ${({ theme }) => theme.primary};
+  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(0 0 0 / 15%);
+  display: flex;
+  margin-block: auto;
+  max-height: 480px;
+  min-height: 480px;
+  min-width: 300px;
+  overflow: hidden;
+  width: 670px;
+
+  & > section:first-of-type {
+    padding: 20px;
+
+    @media screen and (max-width: 900px) {
+      flex-direction: column;
+    }
+  }
+
+  @media screen and (max-width: 680px) {
+    flex-direction: column;
+    max-height: none;
+    width: auto;
+
+    & > section:first-of-type {
+      align-items: center;
+      align-self: stretch;
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    & > div:first-of-type {
+      padding-block: 60px;
+
+      & p {
+        font-size: 2rem;
+      }
+    }
   }
 `;
 
-export const ButtonContent = styled.button`
-// align-items: flex-end;
-background-color: ${({ theme }) => theme.theme};
-border-radius: 5px;
-color: ${({ theme }) => theme.lightColor};
-cursor: pointer;
-display: flex;
-margin-top: 55px;
-margin-left: 40px;
-opacity: 0.8;
-padding: 12px 25px;
-text-transform: uppercase;
-
-&:hover {
-  opacity: 1;
-}
-`;
-
-export const DivContent = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
-export const DivInitialContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 50vh;
-  // border: 2px solid white;
-`;
-
-export default MainContent;
+export default FeedbackPage;

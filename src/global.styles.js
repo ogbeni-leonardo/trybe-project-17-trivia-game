@@ -5,15 +5,15 @@ const GlobalStyles = createGlobalStyle`
   * {
     border: 0;
     box-sizing: border-box;
-    font-family: Inter, sans-serif;
+    font-family: NinthGameFont, sans-serif;
     margin: 0;
     outline: none;
     padding: 0;
   }
 
   @font-face {
-    font-family: Inter;
-    src: local('Inter'), url(${Inter}) format('truetype');
+    font-family: NinthGameFont;
+    src: local('NinthGameFont'), url(${Inter}) format('truetype');
   }
 
   :root {
