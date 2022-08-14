@@ -26,7 +26,7 @@ const player = (state = INITIAL_STATE, action) => {
   case INCREMENT_ASSERTIONS:
     return { ...state, assertions: state.assertions + 1 };
   case RESET_STATE:
-    return INITIAL_STATE;
+    return { ...INITIAL_STATE, theme: state.theme };
   case CHANGE_THEME:
     return {
       ...state,
