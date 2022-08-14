@@ -1,4 +1,5 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { number, string } from 'prop-types';
 
@@ -26,7 +27,9 @@ class Feedback extends React.Component {
   };
 
   render() {
-    const { assertions } = this.props;
+    const { amount, assertions, name } = this.props;
+
+    if (name === '') return <Redirect to="/" />;
 
     return (
       <FeedbackPage>
@@ -35,7 +38,7 @@ class Feedback extends React.Component {
         <FeedbackContainer>
           <FeedbackContent>
             <GameStats />
-            <Podium assertions={ assertions } />
+            <Podium amount={ amount } assertions={ assertions } />
           </FeedbackContent>
 
         </FeedbackContainer>
@@ -45,13 +48,16 @@ class Feedback extends React.Component {
 }
 
 Feedback.propTypes = {
+  amount: number.isRequired,
   assertions: number.isRequired,
   picture: string.isRequired,
   name: string.isRequired,
   score: number.isRequired,
 };
 
-const mapStateToProps = ({ player: { assertions, gravatarEmail, name, score } }) => ({
+const mapStateToProps = ({ player: {
+  amount, assertions, gravatarEmail, name, score } }) => ({
+  amount,
   assertions,
   picture: gravatarEmail,
   name,

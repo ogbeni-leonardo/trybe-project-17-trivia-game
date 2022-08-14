@@ -8,8 +8,9 @@ import PodiumContent, {
 
 export default class Podium extends React.Component {
   render() {
-    const { assertions } = this.props;
-    const MIN_OF_ASSERTIONS = 3;
+    const { amount, assertions } = this.props;
+    const SIXTY_PERCENT = 0.6;
+    const MIN_OF_ASSERTIONS = amount * SIXTY_PERCENT;
 
     return (
       <PodiumContent>
@@ -42,5 +43,6 @@ export default class Podium extends React.Component {
 }
 
 Podium.propTypes = {
+  amount: number.isRequired,
   assertions: number.isRequired,
 };

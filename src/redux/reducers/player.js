@@ -5,13 +5,15 @@ import {
   INCREMENT_ASSERTIONS,
   RESET_STATE,
   CHANGE_THEME,
+  SET_AMOUNT,
 } from '../actions';
 
 const INITIAL_STATE = {
-  name: '',
+  amount: 0,
   assertions: 0,
-  score: 0,
+  name: '',
   gravatarEmail: '',
+  score: 0,
   theme: 'dark',
 };
 
@@ -32,6 +34,8 @@ const player = (state = INITIAL_STATE, action) => {
       ...state,
       theme: state.theme === 'light' ? 'dark' : 'light',
     };
+  case SET_AMOUNT:
+    return { ...state, amount: action.payload };
   default:
     return state;
   }

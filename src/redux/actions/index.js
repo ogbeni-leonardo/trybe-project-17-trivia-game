@@ -15,3 +15,6 @@ export const resetState = () => ({ type: RESET_STATE });
 
 export const CHANGE_THEME = 'CHANGE_THEME';
 export const changeTheme = () => ({ type: CHANGE_THEME });
+
+export const SET_AMOUNT = 'SET_AMOUNT';
+export const setAmount = (payload) => ({ type: SET_AMOUNT, payload });

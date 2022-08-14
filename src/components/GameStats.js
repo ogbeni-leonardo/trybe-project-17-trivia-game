@@ -11,15 +11,14 @@ import GameStatsContent, {
 
 class GameStats extends React.Component {
   render() {
-    const { score, assertions, index } = this.props;
+    const { amount, assertions, index, score } = this.props;
 
     const ICONS_STYLE = {
       fontSize: '2.8rem',
       opacity: 0.5,
     };
 
-    const BASE_CALC = 10;
-    const TRIVIA_PERCENTAGE_COMPLETED = (BASE_CALC * (index + 1)) * 2;
+    const TRIVIA_PERCENTAGE_COMPLETED = (((index + 1) * 100) / amount).toFixed(2);
 
     return (
       <GameStatsContent>
@@ -35,7 +34,7 @@ class GameStats extends React.Component {
           <h3>Assertions</h3>
           <StatsContent>
             <GrValidate style={ ICONS_STYLE } />
-            <p>{`${assertions}/5`}</p>
+            <p>{`${assertions}/${amount}`}</p>
           </StatsContent>
         </StatsContainer>
 
@@ -58,13 +57,14 @@ GameStats.defaultProps = {
 };
 
 GameStats.propTypes = {
+  amount: number.isRequired,
   assertions: number.isRequired,
   index: number,
   score: number.isRequired,
 };
 
-const mapStateToProps = ({ player: { score, assertions } }) => ({
-  score, assertions,
+const mapStateToProps = ({ player: { amount, assertions, score } }) => ({
+  amount, assertions, score,
 });
 
 export default connect(mapStateToProps)(GameStats);
