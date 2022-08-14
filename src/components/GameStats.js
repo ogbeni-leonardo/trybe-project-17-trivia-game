@@ -39,22 +39,28 @@ class GameStats extends React.Component {
           </StatsContent>
         </StatsContainer>
 
-        <StatsContainer background="#d35400">
-          <h3>Progress</h3>
-          <StatsContent>
-            <BsPercent style={ ICONS_STYLE } />
-            <p>{`${TRIVIA_PERCENTAGE_COMPLETED}%`}</p>
-          </StatsContent>
-        </StatsContainer>
+        { index !== undefined && (
+          <StatsContainer background="#d35400">
+            <h3>Progress</h3>
+            <StatsContent>
+              <BsPercent style={ ICONS_STYLE } />
+              <p>{`${TRIVIA_PERCENTAGE_COMPLETED}%`}</p>
+            </StatsContent>
+          </StatsContainer>
+        ) }
       </GameStatsContent>
     );
   }
 }
 
+GameStats.defaultProps = {
+  index: undefined,
+};
+
 GameStats.propTypes = {
-  score: number.isRequired,
   assertions: number.isRequired,
-  index: number.isRequired,
+  index: number,
+  score: number.isRequired,
 };
 
 const mapStateToProps = ({ player: { score, assertions } }) => ({
