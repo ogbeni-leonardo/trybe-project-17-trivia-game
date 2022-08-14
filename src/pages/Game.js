@@ -5,29 +5,19 @@ import { func } from 'prop-types';
 import { RiCloseCircleLine } from 'react-icons/ri';
 import { BsCheck2Circle } from 'react-icons/bs';
 import { BiTimeFive } from 'react-icons/bi';
-
 import { decode } from 'html-entities';
+
 import fetchTrivia from '../services/fetchTrivia';
 import { updateScore, incrementAssertions } from '../redux/actions/index';
 
 import Header from '../components/Header';
+import GameStats from '../components/GameStats';
 
-import '../assets/css/Game.css';
 import GamePage, {
-  ProgressTimer,
-  GameContainer,
-  TriviaGame,
-  CurrentTriviaIndex,
-  TriviaContainer,
-  TriviaCategory,
-  TriviaQuestion,
-  AnswerButtonsContainer,
-  AnswerButton,
-  AlertMessageContainer,
-  CorrectAnswerAlert,
-  IncorrectAnswerAlert,
-  TimeIsOver,
-  NextTriviaButton,
+  GamePageContent, ProgressTimer, GameContainer, TriviaGame, CurrentTriviaIndex,
+  TriviaContainer, TriviaCategory, TriviaQuestion, AnswerButtonsContainer,
+  AnswerButton, AlertMessageContainer, CorrectAnswerAlert, IncorrectAnswerAlert,
+  TimeIsOver, NextTriviaButton,
 } from './Game.styles';
 
 class Game extends React.Component {
@@ -50,9 +40,11 @@ class Game extends React.Component {
 
   async componentDidMount() {
     const { results } = await fetchTrivia();
+
     if (results.length > 0) {
       return this.setState({ triviaData: results }, () => this.getCurrentTrivia());
     }
+
     localStorage.removeItem('token');
     this.setState({ redirect: true });
   }
@@ -87,18 +79,17 @@ class Game extends React.Component {
     answers.push({
       answer: 'right',
       level: trivia.difficulty,
-      toTest: 'correct-answer',
       value: trivia.correct_answer,
     });
 
-    trivia.incorrect_answers.forEach((answer, index) => {
+    trivia.incorrect_answers.forEach((answer) => {
       answers.push({
         answer: 'wrong',
         level: trivia.difficulty,
-        toTest: `wrong-answer-${index}`,
         value: answer,
       });
     });
+
     return this.shuffleArray(answers);
   };
 
@@ -124,6 +115,7 @@ class Game extends React.Component {
       dispatch(updateScore(scoreCalc));
       dispatch(incrementAssertions());
     }
+
     this.setState({
       selectedAnswerIsCorrect: answer.answer === 'right',
       showAnswers: true,
@@ -142,102 +134,99 @@ class Game extends React.Component {
     this.setState(updateStateToSetNewTrivia, () => this.getCurrentTrivia());
   };
 
-  redirectToFeedBack = () => {
-    this.setState({ redirectTo: '/feedback', redirect: true });
-  };
+  redirectToFeedBack = () => this.setState({ redirectTo: '/feedback', redirect: true });
 
   render() {
     const {
-      answerButtonsIsDisabled,
-      currentTrivia,
-      redirect,
-      redirectTo,
-      selectedAnswerIsCorrect,
-      showAnswers,
-      shuffledAnswers,
-      triviaIndex,
-      counter,
+      answerButtonsIsDisabled, currentTrivia, redirect, redirectTo,
+      selectedAnswerIsCorrect, showAnswers, shuffledAnswers, triviaIndex,
     } = this.state;
 
     if (redirect) return <Redirect to={ redirectTo } />;
 
+    const ANIMATIONS_NAME = ['one', 'two', 'three', 'four', 'five'];
+
     return (
       <GamePage>
         <Header />
+        <GamePageContent>
+          <GameContainer>
+            <ProgressTimer
+              animation={ currentTrivia ? ANIMATIONS_NAME[triviaIndex] : 'running' }
+              stop={ showAnswers }
+            />
 
-        <GameContainer>
-          <ProgressTimer counterTime={ showAnswers ? counter : undefined } />
+            <TriviaGame>
+              { currentTrivia && (
+                <TriviaContainer>
+                  <CurrentTriviaIndex>
+                    {`Question ${triviaIndex + 1}/5`}
+                  </CurrentTriviaIndex>
 
-          <TriviaGame>
-            { currentTrivia && (
-              <TriviaContainer>
-                <CurrentTriviaIndex>
-                  {`Question ${triviaIndex + 1}/5`}
-                </CurrentTriviaIndex>
+                  <TriviaCategory>{currentTrivia.category}</TriviaCategory>
+                  <TriviaQuestion>{decode(currentTrivia.question)}</TriviaQuestion>
 
-                <TriviaCategory>{currentTrivia.category}</TriviaCategory>
-                <TriviaQuestion>{decode(currentTrivia.question)}</TriviaQuestion>
+                  <AnswerButtonsContainer>
+                    { shuffledAnswers.map((answer, index) => (
+                      <AnswerButton
+                        answer={ answer.answer }
+                        disabled={ answerButtonsIsDisabled }
+                        key={ index }
+                        onClick={ () => this.onSubmitAnswer(answer) }
+                        type="button"
+                        showAnswer={ showAnswers }
+                      >
+                        {decode(answer.value)}
+                      </AnswerButton>
+                    )) }
+                  </AnswerButtonsContainer>
+                </TriviaContainer>
+              ) }
+            </TriviaGame>
 
-                <AnswerButtonsContainer>
-                  { shuffledAnswers.map((answer, index) => (
-                    <AnswerButton
-                      answer={ answer.answer }
-                      disabled={ answerButtonsIsDisabled }
-                      key={ index }
-                      onClick={ () => this.onSubmitAnswer(answer) }
-                      type="button"
-                      showAnswer={ showAnswers }
-                    >
-                      {decode(answer.value)}
-                    </AnswerButton>
-                  )) }
-                </AnswerButtonsContainer>
-              </TriviaContainer>
-            ) }
-          </TriviaGame>
+            <AlertMessageContainer>
+              { !showAnswers && <p>Aguardando sua resposta...</p> }
 
-          <AlertMessageContainer>
-            { !showAnswers && <p>Aguardando sua resposta...</p> }
+              { showAnswers && selectedAnswerIsCorrect && (
+                <CorrectAnswerAlert>
+                  <BsCheck2Circle />
+                  Resposta correta!
+                </CorrectAnswerAlert>
+              )}
 
-            { showAnswers && selectedAnswerIsCorrect && (
-              <CorrectAnswerAlert>
-                <BsCheck2Circle />
-                Resposta correta!
-              </CorrectAnswerAlert>
-            )}
+              { showAnswers && selectedAnswerIsCorrect === false && (
+                <IncorrectAnswerAlert>
+                  <RiCloseCircleLine />
+                  Resposta incorreta!
+                </IncorrectAnswerAlert>
+              )}
 
-            { showAnswers && selectedAnswerIsCorrect === false && (
-              <IncorrectAnswerAlert>
-                <RiCloseCircleLine />
-                Resposta incorreta!
-              </IncorrectAnswerAlert>
-            )}
+              { showAnswers && selectedAnswerIsCorrect === undefined && (
+                <TimeIsOver>
+                  <BiTimeFive />
+                  Seu tempo esgotou!
+                </TimeIsOver>
+              )}
 
-            { showAnswers && selectedAnswerIsCorrect === undefined && (
-              <TimeIsOver>
-                <BiTimeFive />
-                Seu tempo esgotou!
-              </TimeIsOver>
-            )}
+              { showAnswers && (
+                <NextTriviaButton
+                  data-testid="btn-next"
+                  onClick={ this.nextTrivia }
+                  type="button"
+                >
+                  Next
+                </NextTriviaButton>
+              ) }
+            </AlertMessageContainer>
+          </GameContainer>
 
-            { showAnswers && (
-              <NextTriviaButton
-                data-testid="btn-next"
-                onClick={ this.nextTrivia }
-                type="button"
-              >
-                Next
-              </NextTriviaButton>
-            ) }
-          </AlertMessageContainer>
-        </GameContainer>
+          <GameStats index={ triviaIndex } />
+        </GamePageContent>
       </GamePage>
     );
   }
 }
 
-Game.propTypes = {
-  dispatch: func.isRequired,
-};
+Game.propTypes = { dispatch: func.isRequired };
 
 export default connect()(Game);

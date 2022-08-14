@@ -7,9 +7,18 @@ const HeaderContainer = styled.header`
   border-bottom: 2px solid ${({ theme }) => theme.theme};
   box-shadow: 0 0 15px rgba(0 0 0 / 15%);
   display: flex;
+  gap: 20px;
   justify-content: space-between;
-  min-height: 100px;
+  min-height: 90px;
+  min-width: 300px;
   padding-inline: 20px;
+
+  @media screen and (max-width: 430px) {
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 20px;
+  }
 `;
 
 export const HeaderTitle = styled.h1`
@@ -23,27 +32,8 @@ export const HeaderUserContainer = styled.div`
   align-self: stretch;
   display: flex;
 
-  &:hover {
-    & div {
-      column-gap: 5px;
-      border-radius: 30px;
-      flex-direction: row;
-      height: 46px;
-      padding: 8px;
-      width: auto;
-
-      & img {
-        transform: translateY(0);
-      }
-
-      & p {
-        max-width: 100px;
-      }
-
-      & a {
-        display: block;
-      }
-    }
+  @media screen and (max-width: 430px) {
+    align-self: center;
   }
 `;
 
@@ -51,28 +41,26 @@ export const HeaderUser = styled.div`
   align-items: center;
   background-color: ${({ theme }) => theme.secondary};
   border: 2px solid ${({ theme }) => theme.theme};
-  border-radius: 50%;
+  border-radius: 30px;
+  column-gap: 8px;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
-  height: 80px;
+  height: 46px;
   justify-content: center;
-  padding: 5px;
+  padding: 8px;
   position: relative;
   transition: all 60ms;
-  width: 80px;
 
   & img {
     border-radius: 50%;
     height: 36px;
-    transform: translateY(-2px);
     width: 36px;
   }
 
   & p {
-    font-weight: 600;
     font-size: 0.8rem;
-    max-width: 45px;
+    font-weight: 600;
+    max-width: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
     text-transform: lowercase;
@@ -83,7 +71,6 @@ export const HeaderUser = styled.div`
 export const Logout = styled(Link)`
   border-radius: 50%;
   color: ${({ theme }) => theme.fontColor};
-  display: none;
   font-size: 1.2rem;
   height: 32px;
   position: relative;

@@ -1,108 +1,129 @@
 import styled from 'styled-components';
 
-const MAX_TIME_VALUE = 30;
-const timePercentCalc = (time) => `${(time * 100) / MAX_TIME_VALUE}%`;
-
 const GamePage = styled.main`
   display: flex;
   flex-direction: column;
-  height: max(500px, 100vh);
-  row-gap: 20px;
+  min-height: max(500px, 100vh);
 `;
 
-export const GamePageContent = styled.div``;
+export const GamePageContent = styled.div`
+  align-items: center;
+  column-gap: 60px;
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  min-height: 400px;
+  padding: 20px;
+  row-gap: 40px;
+  min-width: 300px;
+
+  @media screen and (max-width: 900px) {
+    flex-direction: column-reverse;
+  }
+`;
 
 export const GameContainer = styled.div`
   align-self: center;
   background-color: ${({ theme }) => theme.primary};
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0 0 0 /15%);
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-  width: min(100%, 500px);
-  margin-bottom: 20px;
+  height: 480px;
+  max-height: 480px;
   min-width: 300px;
+  overflow: auto;
   position: relative;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 0 15px rgba(0 0 0 /15%);
+  width: min(100%, 500px);
+
+  @media screen and (max-width: 420px) {
+    height: 520px;
+    max-height: 520px;
+  }
 `;
 
 export const ProgressTimer = styled.div`
-  height: 10px;
   background-color: ${({ theme }) => theme.secondary};
+  min-height: 10px;
   position: relative;
-  transition: all 50ms;
 
   &:after {
+    animation: linear ${({ animation }) => `${animation}`} 30s;
+    animation-fill-mode: forwards;
+    animation-play-state: ${({ stop }) => (stop ? 'paused' : 'initial')};
+    background-color: #27ae60;
     content: '';
-    background: linear-gradient(90deg, rgba(192,57,43,1) 0%,
-      rgba(211,84,0,1) 35%, rgba(39,174,96,1) 100%);
-    height: 10px;
-    width: ${({ counterTime }) => (counterTime !== undefined
-    ? timePercentCalc(counterTime) : 0)};
+    min-height: 10px;
     position: absolute;
-    transition: ease-in-out;
-    animation: ${({ counterTime }) => (counterTime === undefined
-    ? 'linear timing 30s' : undefined)};
+    transition: linear 50ms;
+    width: 0;
   }
 
-  @keyframes timing {
+  @keyframes ${({ animation }) => animation} {
     from { width: 100%; }
-    to { width: 0; }
+    to { background-color: #c0392b; width: 0; }
   }
 `;
 
 export const TriviaGame = styled.div`
-  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding-inline: 20px;
+  padding-top: 30px;
   text-align: center;
 `;
 
 export const CurrentTriviaIndex = styled.span`
+  left: 5px;
   position: absolute;
   top: -10px;
-  left: 10px;
 `;
 
 export const TriviaContainer = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: 15px;
+  flex-grow: 1;
   position: relative;
 `;
 
 export const TriviaCategory = styled.h1`
   font-size: 1.8rem;
-  text-align: center;
+  margin-bottom: 15px;
   margin-top: 25px;
+  text-align: center;
 `;
 
 export const TriviaQuestion = styled.p`
-  font-weight: 600;
-  font-style: italic;
-  max-width: 490px;
   font-size: 1.1rem;
+  font-style: italic;
+  font-weight: 600;
+  max-width: 490px;
 `;
 
 export const AnswerButtonsContainer = styled.div`
+  align-items: center;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  padding-block: 20px;
   row-gap: 5px;
-  margin-top: 20px;
-  align-items: center;
 `;
 
 export const AnswerButton = styled.button`
-  padding-inline: 20px;
-  border-radius: 5px;
-  min-height: 45px;
   background-color: ${({ theme }) => theme.secondary};
-  color: ${({ theme }) => theme.fontColor};
-  transition: all 50ms;
-  cursor: pointer;
-  width: 260px;
-  font-weight: 600;
   border: 2px solid transparent;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0 0 0 / 10%);
+  color: ${({ theme }) => theme.fontColor};
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 45px;
   padding-block: 5px;
+  padding-inline: 20px;
+  transition: all 50ms;
+  width: 260px;
 
   &:hover {
     background-color: ${({ theme }) => theme.theme};
@@ -111,37 +132,40 @@ export const AnswerButton = styled.button`
 
   &:disabled {
     border-color: ${({ answer }) => (answer === 'right' ? '#27ae60' : '#c0392b')};
-    cursor: not-allowed;
     color: ${({ answer }) => (answer === 'right' ? '#27ae60' : '#c0392b')};
+    cursor: not-allowed;
     opacity: 0.7;
   }
 
   &:disabled:hover {
     background-color: ${({ answer }) => (answer === 'right' ? '#27ae60' : '#c0392b')};
-    cursor: not-allowed;
     color: ${({ theme }) => theme.lightColor};
+    cursor: not-allowed;
   }
 `;
 
 export const AlertMessageContainer = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  border-top: 2px solid ${({ theme }) => theme.theme};
-  justify-content: space-between;
   align-items: center;
   background-color: ${({ theme }) => theme.secondary};
-  padding: 10px 25px;
-  max-height: 90px;
-  min-height: 45px;
+  border-top: 2px solid ${({ theme }) => theme.theme};
+  display: flex;
+  justify-content: space-between;
+  min-height: 70px;
+  padding-inline: 25px;
+  gap: 10px;
 
   & p {
-    display: flex;
-    column-gap: 5px;
     align-items: center;
+    column-gap: 5px;
+    display: flex;
     font-weight: bold;
+  }
+
+  @media screen and (max-width: 420px) {
+    align-items: center;
+    flex-direction: column;
+    min-height: 100px;
+    justify-content: center;
   }
 `;
 
@@ -158,14 +182,13 @@ export const TimeIsOver = styled.p`
 `;
 
 export const NextTriviaButton = styled(AnswerButton)`
-  width: 120px;
   background-color: ${({ theme }) => theme.theme};
+  box-shadow: none;
   color: ${({ theme }) => theme.lightColor};
   opacity: 0.8;
+  width: 120px;
 
-  &:hover {
-    opacity: 1;
-  }
+  &:hover { opacity: 1 }
 `;
 
 export default GamePage;

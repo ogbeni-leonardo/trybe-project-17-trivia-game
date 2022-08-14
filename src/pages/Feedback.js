@@ -3,7 +3,11 @@ import { connect } from 'react-redux';
 import { number, shape, string } from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import Header from '../components/Header';
-import MainContent, { ButtonContent, DivContent, DivInitialContent } from './Feedback.styles';
+import MainContent, {
+  ButtonContent,
+  DivContent,
+  DivInitialContent,
+} from './Feedback.styles';
 
 class Feedback extends React.Component {
   constructor() {
@@ -32,11 +36,7 @@ class Feedback extends React.Component {
     localStorage.setItem('ranking', JSON.stringify([data]));
   };
 
-  playAgain = () => {
-    this.setState({
-      redirectPlayAgain: true,
-    });
-  }
+  playAgain = () => this.setState({ redirectPlayAgain: true });
 
   render() {
     const { rankingPage, redirectPlayAgain } = this.state;

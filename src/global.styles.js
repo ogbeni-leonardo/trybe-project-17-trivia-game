@@ -1,5 +1,5 @@
 import { createGlobalStyle } from 'styled-components';
-import Inter from './assets/fonts/Inter.ttf';
+import Inter from './fonts/Inter.ttf';
 
 const GlobalStyles = createGlobalStyle`  
   * {
@@ -22,7 +22,19 @@ const GlobalStyles = createGlobalStyle`
 
   ::selection {
     background-color: ${({ theme }) => theme.theme};
-    color: ${({ theme }) => theme.lightColor}
+    color: ${({ theme }) => theme.lightColor};
+  }
+
+  ::-webkit-scrollbar {
+    background-color: ${({ theme }) => theme.secondary};
+    height: 4px;
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.theme};
+    border-radius: 4px;
+    opacity: 0.4;
   }
 
   body {
