@@ -8,6 +8,7 @@ import { BiTimeFive } from 'react-icons/bi';
 import { decode } from 'html-entities';
 
 import fetchTrivia from '../services/fetchTrivia';
+import animationNameGenerator from '../js/animationNameGenerator';
 import { updateScore, incrementAssertions, setAmount } from '../redux/actions/index';
 
 import Header from '../components/Header';
@@ -36,6 +37,8 @@ class Game extends React.Component {
       triviaData: [],
       triviaIndex: 0,
     };
+
+    this.animationName = 'initial';
   }
 
   async componentDidMount() {
@@ -102,6 +105,7 @@ class Game extends React.Component {
     const currentTrivia = triviaData[triviaIndex];
     const shuffledAnswers = this.getTriviaAnswers(currentTrivia);
 
+    this.animationName = animationNameGenerator();
     this.setState({ currentTrivia, shuffledAnswers }, () => this.startTimer());
   };
 
@@ -148,15 +152,13 @@ class Game extends React.Component {
 
     if (redirect || name === '') return <Redirect to={ redirectTo } />;
 
-    const ANIMATIONS_NAME = ['one', 'two', 'three', 'four', 'five'];
-
     return (
       <GamePage>
         <Header />
         <GamePageContent>
           <GameContainer>
             <ProgressTimer
-              animation={ currentTrivia ? ANIMATIONS_NAME[triviaIndex] : 'running' }
+              animation={ this.animationName }
               stop={ showAnswers }
             />
 
