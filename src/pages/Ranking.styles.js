@@ -23,24 +23,24 @@ export const TableRanking = styled.table`
   margin-top: 20px;
   width: 500px;
   box-shadow: 0 0 15px rgba(0 0 0 /15%);
-  
-  & thead{
-    background-color: ${({ theme }) => theme.theme};
-    padding: 5px 20px;   
-    
-    & tr {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 20px;
-      color: ${({ theme }) => theme.lightColor};
-    }
-  }
 
   & tbody {
     display: flex;
     flex-direction: column;
     justify-content:center;
     align-content: center;
+  }
+`;
+
+export const HeaderTableRanking = styled.thead`
+  background-color: ${({ theme }) => theme.theme};
+  padding: 5px 20px;   
+  
+  & tr {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    color: ${({ theme }) => theme.lightColor};
   }
 `;
 

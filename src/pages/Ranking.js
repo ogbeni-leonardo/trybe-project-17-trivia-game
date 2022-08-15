@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import { ButtonContent } from './Feedback.styles';
 import RankingPage, {
   TableRanking,
+  HeaderTableRanking,
   PlayerRanking,
   Player,
   Score,
@@ -39,6 +40,7 @@ class Ranking extends React.Component {
   render() {
     const { redirectPlayAgain } = this.state;
     const podiumLength = 3;
+    const headerTitles = ['Rank', 'Player', 'Score'];
     return (
       <>
         <Header />
@@ -49,13 +51,13 @@ class Ranking extends React.Component {
           </h1>
 
           <TableRanking>
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Player</th>
-                <th>Score</th>
-              </tr>
-            </thead>
+            <HeaderTableRanking>
+              {headerTitles.map((item) => (
+                <tr key={ item }>
+                  <th>{item}</th>
+                </tr>
+              ))}
+            </HeaderTableRanking>
 
             <tbody>
               {this.getRanking().map((player, index) => (
