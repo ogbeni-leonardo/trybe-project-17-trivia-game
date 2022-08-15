@@ -1,10 +1,9 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
 
 import { BsFillTrophyFill } from 'react-icons/bs';
 import Header from '../components/Header';
 
-import { ButtonContent } from './Feedback.styles';
+import { RedirectLink } from '../components/Podium.styles';
 import RankingPage, {
   TableRanking,
   HeaderTableRanking,
@@ -18,12 +17,6 @@ import RankingPage, {
 } from './Ranking.styles';
 
 class Ranking extends React.Component {
-  constructor() {
-    super();
-
-    this.state = { redirectPlayAgain: false };
-  }
-
   getRanking = () => {
     const localStorageData = localStorage.getItem('ranking');
     const rankingData = JSON.parse(localStorageData);
@@ -31,16 +24,10 @@ class Ranking extends React.Component {
     return rankingData.sort((a, b) => b.score - a.score);
   }
 
-  playAgain = () => {
-    this.setState({
-      redirectPlayAgain: true,
-    });
-  }
-
   render() {
-    const { redirectPlayAgain } = this.state;
     const podiumLength = 3;
     const headerTitles = ['Rank', 'Player', 'Score'];
+
     return (
       <>
         <Header />
@@ -52,11 +39,11 @@ class Ranking extends React.Component {
 
           <TableRanking>
             <HeaderTableRanking>
-              {headerTitles.map((item) => (
-                <tr key={ item }>
-                  <th>{item}</th>
-                </tr>
-              ))}
+              <tr>
+                {headerTitles.map((item) => (
+                  <th key={ item }>{item}</th>
+                ))}
+              </tr>
             </HeaderTableRanking>
 
             <tbody>
@@ -90,16 +77,9 @@ class Ranking extends React.Component {
             </tbody>
           </TableRanking>
 
-          <ButtonContent
-            type="button"
-            data-testid="btn-play-again"
-            onClick={ this.playAgain }
-          >
+          <RedirectLink to="/">
             Play Again
-          </ButtonContent>
-
-          { redirectPlayAgain && <Redirect to="/" /> }
-
+          </RedirectLink>
         </RankingPage>
       </>
     );
