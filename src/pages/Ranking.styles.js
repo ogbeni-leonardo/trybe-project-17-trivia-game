@@ -21,15 +21,18 @@ export const TableRanking = styled.table`
   border-radius: 8px;
   overflow: hidden;
   margin-top: 20px;
+  width: 500px;
+  box-shadow: 0 0 15px rgba(0 0 0 /15%);
   
   & thead{
     background-color: ${({ theme }) => theme.theme};
-    padding: 5px 17px;   
+    padding: 5px 20px;   
     
     & tr {
       display: flex;
       justify-content: space-between;
       padding: 10px 20px;
+      color: ${({ theme }) => theme.lightColor};
     }
   }
 
@@ -49,6 +52,7 @@ export const PlayerRanking = styled.tr`
   border-radius: 8px;
   margin: 10px;
   border: 2px solid ${({ theme }) => theme.defaultBackground};
+  box-shadow: 0 0 15px rgba(0 0 0 /15%);
 `;
 
 export const Rank = styled.td`
@@ -57,6 +61,18 @@ export const Rank = styled.td`
   justify-content: center;
   align-items: center;
   width: 25%;
+`;
+
+export const TrophyRankOne = styled.p`
+  color: #ffd700;
+`;
+
+export const TrophyRankTwo = styled.p`
+  color: #C0C0C0;
+`;
+
+export const TrophyRankTree = styled.p`
+  color: #b08d57;
 `;
 
 export const Player = styled.td`

@@ -1,15 +1,19 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 
+import { BsFillTrophyFill } from 'react-icons/bs';
 import Header from '../components/Header';
-import { ButtonContent } from './Feedback.styles';
 
+import { ButtonContent } from './Feedback.styles';
 import RankingPage, {
   TableRanking,
   PlayerRanking,
   Player,
   Score,
   Rank,
+  TrophyRankOne,
+  TrophyRankTwo,
+  TrophyRankTree,
 } from './Ranking.styles';
 
 class Ranking extends React.Component {
@@ -34,6 +38,7 @@ class Ranking extends React.Component {
 
   render() {
     const { redirectPlayAgain } = this.state;
+    const podiumLength = 3;
     return (
       <>
         <Header />
@@ -56,7 +61,16 @@ class Ranking extends React.Component {
               {this.getRanking().map((player, index) => (
                 <PlayerRanking key={ index }>
                   <Rank>
-                    <p><strong>{index + 1}</strong></p>
+                    { index + 1 === 1
+                    && <TrophyRankOne><BsFillTrophyFill /></TrophyRankOne>}
+
+                    { index + 1 === 2
+                    && <TrophyRankTwo><BsFillTrophyFill /></TrophyRankTwo>}
+
+                    { index + 1 === podiumLength
+                    && <TrophyRankTree><BsFillTrophyFill /></TrophyRankTree>}
+                    { index + 1 > podiumLength
+                    && <p><strong>{ index + 1 }</strong></p> }
                   </Rank>
                   <Player>
                     <img
