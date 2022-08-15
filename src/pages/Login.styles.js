@@ -66,7 +66,7 @@ export const LoginFormInput = styled.input`
   color: ${({ theme }) => theme.fontColor};
   height: 35px;
   padding-inline: 15px;
-  width: 250px;
+  width: 252px;
 
   &:focus {
     border-color: ${({ theme }) => theme.theme};

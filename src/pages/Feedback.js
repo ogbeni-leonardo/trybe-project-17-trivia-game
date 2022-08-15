@@ -1,102 +1,68 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { number, shape, string } from 'prop-types';
 import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { number, string } from 'prop-types';
+
+
 import Header from '../components/Header';
-import MainContent, {
-  ButtonContent,
-  DivContent,
-  DivInitialContent,
-} from './Feedback.styles';
+import GameStats from '../components/GameStats';
+import Podium from '../components/Podium';
+
+import FeedbackPage, { FeedbackContainer, FeedbackContent } from './Feedback.styles';
 
 class Feedback extends React.Component {
-  constructor() {
-    super();
+  componentDidMount = () => this.getStoredGames();
 
-    this.state = { rankingPage: false, redirectPlayAgain: false };
-  }
+  getStoredGames = () => {
+    const { name, picture, score } = this.props;
+    const userData = { name, picture, score };
 
-  componentDidMount = () => this.memoryCard();
+    const storedGames = JSON.parse(localStorage.getItem('ranking'));
 
-  rankingRedirect = () => this.setState({ rankingPage: true });
-
-  memoryCard = () => {
-    const { playerData: { name, gravatarEmail: picture, score } } = this.props;
-    const data = { name, picture, score };
-
-    const localStorageVerify = localStorage.getItem('ranking');
-    if (localStorageVerify !== null) {
-      const oldRankingData = [
-        ...JSON.parse(localStorageVerify),
-        { name, picture, score },
-      ];
-      return localStorage.setItem('ranking', JSON.stringify(oldRankingData));
+    if (storedGames !== null) {
+      const localStorageUpdate = [...storedGames, userData];
+      return localStorage.setItem('ranking', JSON.stringify(localStorageUpdate));
     }
 
-    localStorage.setItem('ranking', JSON.stringify([data]));
+    localStorage.setItem('ranking', JSON.stringify([userData]));
   };
 
-  playAgain = () => {
-    this.setState({
-      redirectPlayAgain: true,
-    });
-  }
-
   render() {
-    const { rankingPage, redirectPlayAgain } = this.state;
-    const { assertions, score } = this.props;
-    const MIN_OF_ASSERTIONS = 3;
+    const { amount, assertions, name } = this.props;
+
+    if (name === '') return <Redirect to="/" />;
+
     return (
-      <MainContent>
+      <FeedbackPage>
         <Header />
-        <DivInitialContent>
-          <p data-testid="feedback-text">
-            {assertions < MIN_OF_ASSERTIONS ? 'Could be better...' : 'Well Done!'}
-          </p>
-          <p data-testid="feedback-total-score">{score}</p>
-          <p data-testid="feedback-total-question">{assertions}</p>
-          <DivContent>
-            <ButtonContent
-              type="button"
-              data-testid="btn-ranking"
-              onClick={ (event) => {
-                event.preventDefault();
-                this.rankingRedirect();
-              } }
-            >
-              Ranking
-            </ButtonContent>
-            <ButtonContent
-              type="button"
-              data-testid="btn-play-again"
-              onClick={ this.playAgain }
-            >
-              Play Again
-            </ButtonContent>
-          </DivContent>
-        </DivInitialContent>
-        { redirectPlayAgain && <Redirect to="/" /> }
-        { rankingPage && <Redirect to="/ranking" /> }
-      </MainContent>
+
+        <FeedbackContainer>
+          <FeedbackContent>
+            <GameStats />
+            <Podium amount={ amount } assertions={ assertions } />
+          </FeedbackContent>
+
+        </FeedbackContainer>
+      </FeedbackPage>
     );
   }
 }
 
 Feedback.propTypes = {
+  amount: number.isRequired,
   assertions: number.isRequired,
+  picture: string.isRequired,
+  name: string.isRequired,
   score: number.isRequired,
-  playerData: shape({
-    gravatarEmail: string.isRequired,
-    name: string.isRequired,
-    score: number.isRequired,
-    assertions: number.isRequired,
-  }).isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  assertions: state.player.assertions,
-  score: state.player.score,
-  playerData: state.player,
+const mapStateToProps = ({ player: {
+  amount, assertions, gravatarEmail, name, score } }) => ({
+  amount,
+  assertions,
+  picture: gravatarEmail,
+  name,
+  score,
 });
 
 export default connect(mapStateToProps)(Feedback);

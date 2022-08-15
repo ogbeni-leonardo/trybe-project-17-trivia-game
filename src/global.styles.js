@@ -1,19 +1,19 @@
 import { createGlobalStyle } from 'styled-components';
-import Inter from './assets/fonts/Inter.ttf';
+import Inter from './fonts/Inter.ttf';
 
 const GlobalStyles = createGlobalStyle`  
   * {
     border: 0;
     box-sizing: border-box;
-    font-family: Inter, sans-serif;
+    font-family: NinthGameFont, sans-serif;
     margin: 0;
     outline: none;
     padding: 0;
   }
 
   @font-face {
-    font-family: Inter;
-    src: local('Inter'), url(${Inter}) format('truetype');
+    font-family: NinthGameFont;
+    src: local('NinthGameFont'), url(${Inter}) format('truetype');
   }
 
   :root {
@@ -22,7 +22,19 @@ const GlobalStyles = createGlobalStyle`
 
   ::selection {
     background-color: ${({ theme }) => theme.theme};
-    color: ${({ theme }) => theme.lightColor}
+    color: ${({ theme }) => theme.lightColor};
+  }
+
+  ::-webkit-scrollbar {
+    background-color: ${({ theme }) => theme.secondary};
+    height: 4px;
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.theme};
+    border-radius: 4px;
+    opacity: 0.4;
   }
 
   body {

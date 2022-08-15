@@ -91,7 +91,7 @@ class Login extends React.Component {
 
           <LoginFormDataContainer>
             <LoginFormLabel htmlFor="name">
-              Nome:
+              Name:
               <LoginFormInput
                 type="text"
                 id="name"
@@ -99,7 +99,7 @@ class Login extends React.Component {
                 data-testid="input-player-name"
                 value={ name }
                 onChange={ this.handleChange }
-                placeholder="Digite seu nome"
+                placeholder="Type your name"
               />
             </LoginFormLabel>
 
@@ -112,7 +112,7 @@ class Login extends React.Component {
                 data-testid="input-gravatar-email"
                 value={ email }
                 onChange={ this.handleChange }
-                placeholder="Digite seu email"
+                placeholder="Type your e-mail"
               />
             </LoginFormLabel>
           </LoginFormDataContainer>
